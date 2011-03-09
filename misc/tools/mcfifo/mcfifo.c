@@ -5,7 +5,7 @@
  *
  * Loosely based on:
  *
- *     http://forum.doom9.org/showthread.php?s=8b5f518ea5d237044f2728a1943712d5&p=1226337#post1226337
+ *     http://forum.doom9.org/showthread.php?p=1226337#post1226337
  *
  * Thanks to roozhou.
  *

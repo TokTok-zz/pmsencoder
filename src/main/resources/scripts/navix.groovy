@@ -1,7 +1,7 @@
 /*
     navix://channel?url=http%3A//example.com&referer=http%3A//example.com&agent=Mozilla
 
-    This protocol uses MPlayer as the downloader
+    This protocol uses MEncoder as the downloader/transcoder
     Only the following Navi-X output fields are supported:
 
         url     // required: media URL
@@ -35,18 +35,18 @@ init {
                 switch (name) {
                     case 'url':
                         if (value) {
-                            // quote handling is built in for this downloader
+                            // quote handling is built in for MEncoder
                             $URI = value
                             seenURL = true
                         }
                         break
                     case 'referer':
                         if (value)
-                            mencoderArgs << '-referrer' << value // requires a recent (>= June 2010) mplayer
+                            mencoderArgs << '-referrer' << quoteURI(value) // requires a recent (>= June 2010) mplayer
                         break
                     case 'agent':
                         if (value)
-                            mencoderArgs << '-user-agent' << value
+                            mencoderArgs << '-user-agent' << quoteURI(value)
                         break
                     case 'player':
                         if (value)
