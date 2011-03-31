@@ -4,30 +4,30 @@ package com.chocolatey.pmsencoder
 import net.pms.PMS
 
 class PMSEncoderTest extends PMSEncoderTestCase {
-    void testCommandClone() {
-        def command = new Command([ foo: 'bar' ], [ 'baz', 'quux' ])
-        assert command != null
-        def newCommand = command.clone()
-        assert newCommand != null
+    void testResponseClone() {
+        def response = new Response([ foo: 'bar' ], [ 'baz', 'quux' ])
+        assert response != null
+        def newResponse = response.clone()
+        assert newResponse != null
 
-        assert !command.stash.is(newCommand.stash)
-        assert !command.transcoder.is(newCommand.transcoder)
-        assert !command.is(newCommand)
-        assert newCommand.stash == [ $foo: 'bar' ]
-        assert newCommand.transcoder == [ 'baz', 'quux' ]
+        assert !response.stash.is(newResponse.stash)
+        assert !response.transcoder.is(newResponse.transcoder)
+        assert !response.is(newResponse)
+        assert newResponse.stash == [ $foo: 'bar' ]
+        assert newResponse.transcoder == [ 'baz', 'quux' ]
     }
 
-    void testCommandCopy() {
-        def command = new Command([ foo: 'bar' ], [ 'baz', 'quux' ])
-        assert command != null
-        def newCommand = new Command(command)
-        assert newCommand != null
+    void testResponseCopy() {
+        def response = new Response([ foo: 'bar' ], [ 'baz', 'quux' ])
+        assert response != null
+        def newResponse = new Response(response)
+        assert newResponse != null
 
-        assert !command.stash.is(newCommand.stash)
-        assert !command.transcoder.is(newCommand.transcoder)
-        assert !command.is(newCommand)
-        assert newCommand.stash == [ $foo: 'bar' ]
-        assert newCommand.transcoder == [ 'baz', 'quux' ]
+        assert !response.stash.is(newResponse.stash)
+        assert !response.transcoder.is(newResponse.transcoder)
+        assert !response.is(newResponse)
+        assert newResponse.stash == [ $foo: 'bar' ]
+        assert newResponse.transcoder == [ 'baz', 'quux' ]
     }
 
     void testStashClone() {

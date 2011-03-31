@@ -43,7 +43,7 @@ init {
 
             if (seenURL) {
                 // rtmpdump doesn't log to stdout, so no need to use -q on Windows
-                $DOWNLOADER = "$RTMPDUMP -o $DOWNLOADER_OUT -r ${$URI}"
+                $DOWNLOADER = "$RTMPDUMP -o DOWNLOADER_OUT -r ${$URI}"
                 $DOWNLOADER += rtmpdumpArgs
             } else {
                 log.error("invalid rtmpdump:// URI: no -r or --rtmp parameter supplied: ${$URI}")

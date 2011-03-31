@@ -18,47 +18,6 @@
       http://stackoverflow.com/questions/3302384/youtubes-hd-video-streaming-server-technology
 */
 
-/*
-
-fix the design: http://groovy.codehaus.org/Replace+Inheritance+with+Delegation
-
-Should be:
-
-    Matcher receives an exchange (request/response) object. It creates a
-    wrapper that holds methods and members common to Patterns and Actions:
-
-        def exchange = new Exchange(this, request)
-
-    For each Profile, Matcher instantiates a Pattern:
-
-        def pattern = new Pattern(exchange)
-
-    If the pattern matches, it then creates an Action:
-
-        def action = new Action(exchange)
-
-Read-only options could go in request and r/w objects in response e.g.
-
-new Request(
-    downloader_out: ...,
-    transcoder_out: ...,
-    uri: ...,
-)
-
-new Response(
-    args: ...,
-    downloader: ...
-    transcoder: ...
-    uri: ...
-)
-
-matcher.run(request, response)
-
-http://stackoverflow.com/questions/325346/name-for-http-requestresponse
-http://stackoverflow.com/questions/1039513/what-is-a-request-response-pair-called
-
-*/
-
 // make $URI a URI rather than a String?
 
 // tests for prepend and append

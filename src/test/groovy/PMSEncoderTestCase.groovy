@@ -114,40 +114,40 @@ abstract class PMSEncoderTestCase extends GroovyTestCase {
             }
         }
 
-        def command
+        def response
 
         if (transcoder != null) {
             if (stash != null) {
-                command = new Command(stash, transcoder)
+                response = new Response(stash, transcoder)
             } else {
-                command = new Command(transcoder)
+                response = new Response(transcoder)
             }
         } else if (stash != null) {
-            command = new Command(stash)
+            response = new Response(stash)
         } else {
-            command = new Command()
+            response = new Response()
         }
 
         if (hook != null) {
-            command.hook = hook
+            response.hook = hook
         }
 
         if (downloader != null) {
-            command.downloader = downloader
+            response.downloader = downloader
         }
 
         if (transcoder != null) {
-            command.transcoder = transcoder
+            response.transcoder = transcoder
         }
 
         if (output != null) {
-            command.output = output
+            response.output = output
         }
 
-        matcher.match(command, useDefaultTranscoder)
+        matcher.match(response, useDefaultTranscoder)
 
         if (wantMatches != null) {
-            assert command.matches == wantMatches
+            assert response.matches == wantMatches
         }
 
         /*
@@ -166,41 +166,41 @@ abstract class PMSEncoderTestCase extends GroovyTestCase {
 
         if (wantStash != null) {
             if (wantStash instanceof Closure) {
-                assert (wantStash as Closure).call(command.stash)
+                assert (wantStash as Closure).call(response.stash)
             } else {
-                assert command.stash == wantStash
+                assert response.stash == wantStash
             }
         }
 
         if (wantHook != null) {
             if (wantHook instanceof Closure) {
-                assert (wantHook as Closure).call(command.hook)
+                assert (wantHook as Closure).call(response.hook)
             } else {
-                assert command.hook == wantHook
+                assert response.hook == wantHook
             }
         }
 
         if (wantDownloader != null) {
             if (wantDownloader instanceof Closure) {
-                assert (wantDownloader as Closure).call(command.downloader)
+                assert (wantDownloader as Closure).call(response.downloader)
             } else {
-                assert command.downloader == wantDownloader
+                assert response.downloader == wantDownloader
             }
         }
 
         if (wantTranscoder != null) {
             if (wantTranscoder instanceof Closure) {
-                assert (wantTranscoder as Closure).call(command.transcoder)
+                assert (wantTranscoder as Closure).call(response.transcoder)
             } else {
-                assert command.transcoder == wantTranscoder
+                assert response.transcoder == wantTranscoder
             }
         }
 
         if (wantOutput != null) {
             if (wantOutput instanceof Closure) {
-                assert (wantOutput as Closure).call(command.output)
+                assert (wantOutput as Closure).call(response.output)
             } else {
-                assert command.output == wantOutput
+                assert response.output == wantOutput
             }
         }
     }

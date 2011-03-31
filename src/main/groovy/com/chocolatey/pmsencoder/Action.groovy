@@ -103,7 +103,7 @@ class Action {
     // DSL method
     void let(Map map) {
         map.each { key, value ->
-            command.let(key, ((value == null) ? null : value))
+            response.let(key, ((value == null) ? null : value))
         }
     }
 
@@ -132,8 +132,8 @@ class Action {
                     XXX squashed bug: careful not to perform operations on copies of stash or transcoder
                     i.e. make sure they're modified in place:
 
-                        def transcoder = command.transcoder
-                        transcoder += ... // XXX doesn't modify command.transcoder
+                        def transcoder = response.transcoder
+                        transcoder += ... // XXX doesn't modify response.transcoder
                 */
                 context << name.toString() << value.toString()
             } else {
@@ -289,15 +289,15 @@ class Action {
 
     // DSL method
     void youtube(List<Integer> formats = $YOUTUBE_ACCEPT) {
-        def uri = command.getVar('$URI')
-        def video_id = command.getVar('$youtube_video_id')
-        def t = command.getVar('$youtube_t')
+        def uri = response.getVar('$URI')
+        def video_id = response.getVar('$youtube_video_id')
+        def t = response.getVar('$youtube_t')
         def found = false
 
         assert video_id != null
         assert t != null
 
-        command.let('$youtube_uri', uri)
+        response.let('$youtube_uri', uri)
 
         if (formats.size() > 0) {
             def fmt_url_map = getFormatURLMap(video_id)
@@ -312,8 +312,8 @@ class Action {
                     if (stream_uri != null) {
                         // set the new URI
                         log.debug('success')
-                        command.let('$youtube_fmt', fmtString)
-                        command.let('$URI', stream_uri)
+                        response.let('$youtube_fmt', fmtString)
+                        response.let('$URI', stream_uri)
                         return true
                     } else {
                         log.debug('failure')

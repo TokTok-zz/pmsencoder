@@ -6,9 +6,9 @@ import net.pms.io.OutputParams
 import org.apache.log4j.Level
 
 /*
- * this object encapsulates the per-request state passed from/to the PMS transcode launcher (PMSEncoder.java).
+ * this object encapsulates the per-request state passed from the plugin to the transcode launcher (PMSEncoder.java).
  */
-class Command implements LoggerMixin, Cloneable {
+class Response implements LoggerMixin, Cloneable {
     Stash stash
     OutputParams params
     Level stashAssignmentLogLevel = Level.DEBUG
@@ -18,47 +18,52 @@ class Command implements LoggerMixin, Cloneable {
     List<String> transcoder = []
     List<String> output = []
 
-    private Command(Stash stash, List<String> transcoder, List<String> matches) {
+    private Response(Stash stash, List<String> transcoder, List<String> matches) {
         this.stash = stash
         this.transcoder = transcoder
         this.matches = matches
     }
 
-    public Command() {
+    public Response() {
         this(new Stash(), [], [])
     }
 
-    public Command(Stash stash) {
+    public Response(Stash stash) {
         this(stash, [])
     }
 
-    public Command(List<String> transcoder) {
+    public Response(List<String> transcoder) {
         this(new Stash(), transcoder)
     }
 
-    public Command(Stash stash, List<String> transcoder) {
+    public Response(Stash stash, List<String> transcoder) {
         this(stash, transcoder, [])
     }
 
     // convenience constructor: allow the stash to be supplied as a Map<String, String>
-    // e.g. new Command([ uri: uri ])
-    public Command(Map<String, String> map) {
+    // e.g. new Response([ uri: uri ])
+    public Response(Map<String, String> map) {
         this(new Stash(map), [], [])
     }
 
-    public Command(Command other) {
+    public Response(Request request) {
+        this([ uri: request.uri ])
+        this.params = request.params
+    }
+
+    public Response(Response other) {
         this(new Stash(other.stash), new ArrayList<String>(other.transcoder), new ArrayList<String>(other.matches))
     }
 
-    public Command clone() {
-        return new Command(this)
+    public Response clone() {
+        return new Response(this)
     }
 
     public void setParams(OutputParams params) {
         this.params = params
     }
 
-    public boolean equals(Command other) {
+    public boolean equals(Response other) {
         this.matches == other.matches &&
         this.hook == other.hook &&
         this.downloader == other.downloader &&

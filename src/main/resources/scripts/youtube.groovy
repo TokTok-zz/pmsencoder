@@ -64,9 +64,9 @@ check {
             $youtube_dl_enabled = true
             $URI = quoteURI($URI)
             if (YOUTUBE_DL_MAX_QUALITY) {
-                $DOWNLOADER = "$PYTHON $YOUTUBE_DL --max-quality $YOUTUBE_DL_MAX_QUALITY --quiet -o $DOWNLOADER_OUT ${$URI}"
+                $DOWNLOADER = "$PYTHON $YOUTUBE_DL --max-quality $YOUTUBE_DL_MAX_QUALITY --quiet -o DOWNLOADER_OUT ${$URI}"
             } else {
-                $DOWNLOADER = "$PYTHON $YOUTUBE_DL --quiet -o $DOWNLOADER_OUT ${$URI}"
+                $DOWNLOADER = "$PYTHON $YOUTUBE_DL --quiet -o DOWNLOADER_OUT ${$URI}"
             }
         }
     }

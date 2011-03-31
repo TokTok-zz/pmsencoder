@@ -28,11 +28,11 @@ class ProfileDelegate {
     // FIXME: sigh: transitive delegation doesn't work (groovy bug)
     // so make this public so dependent classes can manually delegate to it
     @Delegate Matcher matcher
-    Command command
+    Response response
 
-    public ProfileDelegate(Matcher matcher, Command command) {
+    public ProfileDelegate(Matcher matcher, Response response) {
         this.matcher = matcher
-        this.command = command
+        this.response = response
     }
 
     // DSL properties
@@ -52,42 +52,42 @@ class ProfileDelegate {
 
     // DSL accessor ($DOWNLOADER): getter
     public List<String> get$DOWNLOADER() {
-        command.downloader
+        response.downloader
     }
 
     // DSL accessor ($DOWNLOADER): setter
     public List<String> set$DOWNLOADER(Object downloader) {
-        command.downloader = Util.stringList(downloader)
+        response.downloader = Util.stringList(downloader)
     }
 
     // DSL accessor ($TRANSCODER): getter
     public List<String> get$TRANSCODER() {
-        command.transcoder
+        response.transcoder
     }
 
     // DSL accessor ($TRANSCODER): setter
     public List<String> set$TRANSCODER(Object transcoder) {
-        command.transcoder = Util.stringList(transcoder)
+        response.transcoder = Util.stringList(transcoder)
     }
 
     // DSL accessor ($HOOK): getter
     public List<String> get$HOOK() {
-        command.hook
+        response.hook
     }
 
     // DSL accessor ($HOOK): setter
     public List<String> set$HOOK(Object hook) {
-        command.hook = Util.stringList(hook)
+        response.hook = Util.stringList(hook)
     }
 
     // DSL accessor ($OUTPUT): getter
     public List<String> get$OUTPUT() {
-        command.output
+        response.output
     }
 
     // DSL accessor ($OUTPUT): setter
     public List<String> set$OUTPUT(Object args) {
-        command.output = Util.stringList(args)
+        response.output = Util.stringList(args)
     }
 
     // FIXME: use the URI class
@@ -101,13 +101,13 @@ class ProfileDelegate {
 
     // $PROTOCOL: getter
     public String get$PROTOCOL() {
-        return getProtocol(command.getVar('$URI'))
+        return getProtocol(response.getVar('$URI'))
     }
 
     // DSL accessor ($PARAMS): getter
     // $PARAMS: getter
     public OutputParams get$PARAMS() {
-        command.params
+        response.params
     }
 
     // DSL getter
@@ -115,18 +115,18 @@ class ProfileDelegate {
         if (matcher.hasVar(name)) {
             return matcher.getVar(name)
         } else {
-            return command.getVar(name)
+            return response.getVar(name)
         }
     }
 
     // DSL setter
     public String propertyMissing(String name, Object value) {
-        command.let(name, value?.toString())
+        response.let(name, value?.toString())
     }
 
     // DSL method
     public Object browse(Map options = [:], Closure closure) {
-        String uri = (options['uri'] == null) ? command.getVar('$URI') : options['uri'].toString()
+        String uri = (options['uri'] == null) ? response.getVar('$URI') : options['uri'].toString()
         driver.get(uri)
         Browser.drive(driver, closure)
     }
@@ -141,12 +141,12 @@ class ProfileDelegate {
     }
 
     /*
-        1) get the URI pointed to by options['uri'] or command.getVar('$URI') (if it hasn't already been retrieved)
+        1) get the URI pointed to by options['uri'] or response.getVar('$URI') (if it hasn't already been retrieved)
         2) perform a regex match against the document
         3) update the stash with any named captures
     */
     public boolean scrape(Object regex, Map options) {
-        String uri = (options['uri'] == null) ? command.getVar('$URI') : options['uri'].toString()
+        String uri = (options['uri'] == null) ? response.getVar('$URI') : options['uri'].toString()
         String document = (options['source'] == null) ? cache[uri] : options['source'].toString()
         boolean decode = options['decode'] == null ? false : options['decode']
 
@@ -173,7 +173,7 @@ class ProfileDelegate {
 
         if (RegexHelper.match(document, regex.toString(), newStash)) {
             log.debug('success')
-            newStash.each { name, value -> command.let(name, value) }
+            newStash.each { name, value -> response.let(name, value) }
             scraped = true
         } else {
             log.debug('failure')

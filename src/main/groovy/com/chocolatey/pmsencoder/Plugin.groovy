@@ -207,8 +207,8 @@ class Plugin implements ExternalListener, FileListener {
         }
     }
 
-    public boolean match(Command command) {
-        matcher.match(command)
+    public Response match(Request request) {
+        matcher.match(request)
     }
 
     @Override

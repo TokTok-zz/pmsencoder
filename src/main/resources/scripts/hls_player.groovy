@@ -7,7 +7,7 @@ script {
 
         action {
             $URI = quoteURI($URI)
-            $DOWNLOADER = "$PYTHON $HLS_PLAYER --path $DOWNLOADER_OUT ${$URI}"
+            $DOWNLOADER = "$PYTHON $HLS_PLAYER --path DOWNLOADER_OUT ${$URI}"
         }
     }
 }

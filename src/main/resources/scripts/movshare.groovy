@@ -9,7 +9,7 @@ script {
         action {
             if (VLC) {
                 $URI = quoteURI($URI)
-                $DOWNLOADER = "$VLC -q -I dummy --demux dump --demuxdump-file $DOWNLOADER_OUT ${$URI}"
+                $DOWNLOADER = "$VLC -q -I dummy --demux dump --demuxdump-file DOWNLOADER_OUT ${$URI}"
             } else {
                 $PARAMS.waitbeforestart = 20000L
             }

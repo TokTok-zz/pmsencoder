@@ -75,28 +75,28 @@ class Profile implements LoggerMixin {
         }
     }
 
-    boolean match(Command command) {
+    boolean match(Response response) {
         if (patternBlock == null && actionBlock == null) {
             return true
         }
 
-        def profileDelegate = new ProfileDelegate(matcher, command)
+        def profileDelegate = new ProfileDelegate(matcher, response)
 
         if (patternBlock == null) { // unconditionally match
             log.trace('no pattern block supplied: matched OK')
             runActionBlock(profileDelegate)
             return true
         } else {
-            def newCommand = command.clone()
-            def patternProfileDelegate = new ProfileDelegate(matcher, newCommand)
+            def newResponse = response.clone()
+            def patternProfileDelegate = new ProfileDelegate(matcher, newResponse)
 
             // avoid clogging up the logfile with pattern-block stash assignments. If the pattern doesn't match,
             // the assigments are irrelevant; and if it does match, the assignments are logged (below)
-            // when the pattern's temporary stash is merged into the command stash. Rather than suppressing these
+            // when the pattern's temporary stash is merged into the response stash. Rather than suppressing these
             // assignments completely, log them at the lowest (TRACE) level
-            newCommand.setStashAssignmentLogLevel(Level.TRACE)
+            newResponse.setStashAssignmentLogLevel(Level.TRACE)
 
-            // the pattern block has its own command object (which is initially the same as the action block's).
+            // the pattern block has its own response object (which is initially the same as the action block's).
             // if the match succeeds, then the pattern block's stash is merged into the action block's stash.
             // this ensures that a partial match (i.e. a failed match) with side-effects/bindings doesn't contaminate
             // the action, and, more importantly, it defers logging until the whole pattern block has
@@ -109,7 +109,7 @@ class Profile implements LoggerMixin {
             if (runPatternBlock(pattern)) {
                 // we can now merge any side-effects (currently only modifications to the stash).
                 // first: merge (with logging)
-                newCommand.stash.each { name, value -> command.let(name, value) }
+                newResponse.stash.each { name, value -> response.let(name, value) }
                 // now run the actions
                 runActionBlock(profileDelegate)
                 return true

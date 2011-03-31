@@ -21,20 +21,20 @@ init {
 
         $DOWNLOADER = $MPLAYER:
 
-            $DOWNLOADER = "mplayer -msglevel all=2 -prefer-ipv4 -quiet -dumpstream -dumpfile $DOWNLOADER_OUT ${$URI}"
+            $DOWNLOADER = "mplayer -msglevel all=2 -prefer-ipv4 -quiet -dumpstream -dumpfile DOWNLOADER_OUT ${$URI}"
 
         $TRANSCODER = $FFMPEG:
 
             $TRANSCODER = "ffmpeg -v 0 -y -threads nbcores \
-                -i ${$URI} -threads nbcores -target ntsc-dvd $TRANSCODER_OUT"
+                -i ${$URI} -threads nbcores -target ntsc-dvd TRANSCODER_OUT"
 
             $TRANSCODER = "ffmpeg -v 0 -y -threads nbcores \
-                -i $DOWNLOADER_OUT -threads nbcores -target ntsc-dvd $TRANSCODER_OUT"
+                -i DOWNLOADER_OUT -threads nbcores -target ntsc-dvd TRANSCODER_OUT"
 
         $TRANSCODER = $MENCODER:
 
-            $TRANSCODER = "mencoder -mencoder -options -o $TRANSCODER_OUT ${$URI}"
-            $TRANSCODER = "mencoder -mencoder -options -o $TRANSCODER_OUT $DOWNLOADER_OUT"
+            $TRANSCODER = "mencoder -mencoder -options -o TRANSCODER_OUT ${$URI}"
+            $TRANSCODER = "mencoder -mencoder -options -o TRANSCODER_OUT DOWNLOADER_OUT"
 
         By default, ffmpeg is used without a separate downloader.
 

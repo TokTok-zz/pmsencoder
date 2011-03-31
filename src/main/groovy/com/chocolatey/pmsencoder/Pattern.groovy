@@ -16,7 +16,7 @@ class Pattern {
     // which is handled later (if the match succeeds) by merging the pattern
     // block's temporary stash
     protected String propertyMissing(String name, Object value) {
-        command.setVar(name, value)
+        response.setVar(name, value)
     }
 
     protected String propertyMissing(String name) {
@@ -25,7 +25,7 @@ class Pattern {
 
     // DSL method
     protected void domain(Object scalarOrList) {
-        def uri = command.getVar('$URI')
+        def uri = response.getVar('$URI')
         def matched = Util.scalarList(scalarOrList).any({
             return matchString(uri, domainToRegex(it))
         })
@@ -43,7 +43,7 @@ class Pattern {
     // DSL method
     protected void protocol(Object scalarOrList) {
         def matched = Util.scalarList(scalarOrList).any({
-            return command.getVar('$URI').startsWith("${it}://".toString())
+            return response.getVar('$URI').startsWith("${it}://".toString())
         })
 
         if (!matched) {
@@ -82,13 +82,13 @@ class Pattern {
             matched = matchClosure(object as Closure)
         } else if (object instanceof Map) {
             (object as Map).each { name, value ->
-                match(command.getVar(name), value)
+                match(response.getVar(name), value)
             }
         } else if (object instanceof List) {
             def matches = (object as List)*.toString()
-            matched = command.matches.containsAll(matches)
+            matched = response.matches.containsAll(matches)
         } else {
-            matched = command.matches.contains(object.toString())
+            matched = response.matches.contains(object.toString())
         }
 
         if (!matched) {
@@ -133,7 +133,7 @@ class Pattern {
         } else {
             log.debug("matching $name against $value")
 
-            if (RegexHelper.match(name, value, command.stash)) {
+            if (RegexHelper.match(name, value, response.stash)) {
                 log.debug('success')
                 return true // abort default failure below
             } else {

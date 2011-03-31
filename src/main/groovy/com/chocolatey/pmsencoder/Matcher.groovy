@@ -19,9 +19,9 @@ class Matcher implements LoggerMixin {
     // this is the default Map type, but let's be explicit as we strictly need this type
     private Map<String, Profile> profiles = new LinkedHashMap<String, Profile>()
     private PMS pms
-    private List<String> mencoder = []
-    private List<String> mplayer = []
-    private List<String> ffmpeg = []
+    private List<String> mencoderArgs = []
+    private List<String> mplayerArgs = []
+    private List<String> ffmpegArgs = []
     private List<String> ffmpegOut = []
     private List<Integer> youtubeAccept = []
     private Map<String, Object> stash = new HashMap<String, Object>()
@@ -31,35 +31,47 @@ class Matcher implements LoggerMixin {
         this.pms = pms
     }
 
-    boolean match(Command command, boolean useDefault = true) {
-        if (useDefault) {
-            command.transcoder = ffmpeg*.toString()
-            command.output = ffmpegOut*.toString()
-        }
+    // live interface (via PMSEncoder -> Plugin)
+    Response match(Request request) {
+        def response = new Response(request)
+        match(response, true)
+    }
 
-        def uri = command.stash.get('$URI')
-        log.debug("matching URI: $uri")
+    // test interface (chiefly via PMSEncoderTestCase)
+    Response match(Response response, boolean useDefault = true) {
+        try {
+            if (useDefault) {
+                response.transcoder = ffmpegArgs*.toString()
+                response.output = ffmpegOut*.toString()
+            }
 
-        // XXX this is horribly inefficient, but it's a) trivial to implement and b) has the right semantics
-        // the small number of scripts make this a non-issue for now
-        Stage.each { stage ->
-            profiles.values().each { profile ->
-                if (profile.stage == stage && profile.match(command)) {
-                    // XXX make sure we take the name from the profile itself
-                    // rather than the Map key - the latter may have been usurped
-                    // by a profile with a different name
-                    command.matches << profile.name
+            def uri = response.getVar('$URI')
+            log.debug("matching URI: $uri")
+
+            // XXX this is horribly inefficient, but it's a) trivial to implement and b) has the right semantics
+            // the small number of scripts make this a non-issue for now
+            Stage.each { stage ->
+                profiles.values().each { profile ->
+                    if (profile.stage == stage && profile.match(response)) {
+                        // XXX make sure we take the name from the profile itself
+                        // rather than the Map key - the latter may have been usurped
+                        // by a profile with a different name
+                        response.matches << profile.name
+                    }
                 }
             }
+
+            def matched = response.matches.size() > 0
+
+            if (matched) {
+                log.trace("response: $response")
+            }
+        } catch (Throwable e) {
+            log.error('match error: ' + e)
+            PMS.error('PMSEncoder: match error', e)
         }
 
-        def matched = command.matches.size() > 0
-
-        if (matched) {
-            log.trace("command: $command")
-        }
-
-        return matched
+        return response
     }
 
     // DSL method
@@ -250,32 +262,32 @@ class Matcher implements LoggerMixin {
 
     // DSL getter: $MENCODER
     public List<String> get$MENCODER() {
-        mencoder
+        mencoderArgs
     }
 
     // DSL setter: $MENCODER
     public List<String> set$MENCODER(Object stringOrList) {
-        mencoder = Util.stringList(stringOrList)
+        mencoderArgs = Util.stringList(stringOrList)
     }
 
     // DSL getter: $MPLAYER
     public List<String> get$MPLAYER() {
-        mplayer
+        mplayerArgs
     }
 
     // DSL setter: $MPLAYER
     public List<String> set$MPLAYER(Object stringOrList) {
-        mplayer = Util.stringList(stringOrList)
+        mplayerArgs = Util.stringList(stringOrList)
     }
 
     // DSL getter: $FFMPEG
     public List<String> get$FFMPEG() {
-        ffmpeg
+        ffmpegArgs
     }
 
     // DSL setter: $FFMPEG
     public List<String> set$FFMPEG(Object stringOrList) {
-        ffmpeg = Util.stringList(stringOrList)
+        ffmpegArgs = Util.stringList(stringOrList)
     }
 
     // DSL getter: $FFMPEG_OUT
