@@ -26,7 +26,7 @@ import net.pms.io.ProcessWrapper;
 import net.pms.PMS;
 import net.pms.util.ProcessUtil;
 
-public class PMSEncoderProcessWrapper extends Thread implements ProcessWrapper {
+class PMSEncoderProcessWrapper extends Thread implements ProcessWrapper {
     private String cmdLine;
     private Process process;
     private OutputConsumer stdoutConsumer;

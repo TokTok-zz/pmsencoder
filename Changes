@@ -1,3 +1,6 @@
+1.5.6 TBC 
+    - look in platform subdirectory for standalone executables (e.g. rtmpdump) if paths aren't defined in PMS.conf
+
 1.5.5 Sun Mar 6 17:45:11 2011
     - use MEncoder as a transcoder (instead of MPlayer as a downloader) to work around
       Windows streaming issues

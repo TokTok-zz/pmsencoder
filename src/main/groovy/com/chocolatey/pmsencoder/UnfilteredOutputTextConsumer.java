@@ -10,7 +10,7 @@ import net.pms.PMS;
 import net.pms.io.BufferedOutputFile;
 import net.pms.io.OutputConsumer;
 
-public class UnfilteredOutputTextConsumer extends OutputConsumer {
+class UnfilteredOutputTextConsumer extends OutputConsumer {
     public UnfilteredOutputTextConsumer(InputStream inputStream) {
         super(inputStream);
     }

@@ -1,9 +1,11 @@
 @Typed
 package com.chocolatey.pmsencoder
 
+import com.sun.jna.Platform
+
 import net.pms.PMS
 
-class Util {
+public class Util {
     public static List<String> scalarList(Object scalarOrList) {
         if (scalarOrList == null) {
             return []

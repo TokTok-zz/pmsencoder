@@ -2,7 +2,7 @@
 package com.chocolatey.pmsencoder
 
 // a long-winded way of getting Java Strings and Groovy GStrings to play nice
-public class Stash extends LinkedHashMap<java.lang.String, java.lang.String> {
+class Stash extends LinkedHashMap<java.lang.String, java.lang.String> {
     public Stash() {
         super()
     }

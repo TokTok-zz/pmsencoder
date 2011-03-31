@@ -4,7 +4,7 @@ package com.chocolatey.pmsencoder
 import net.pms.encoders.Player
 import net.pms.PMS
 
-public class WEB extends net.pms.formats.WEB {
+class WEB extends net.pms.formats.WEB {
     // unless otherwise indicated, these protocols are only supported by MEncoder
     private static final String[] PROTOCOLS = [
         "br",

@@ -8,7 +8,7 @@ import org.apache.log4j.Level
 /*
  * this object encapsulates the per-request state passed from/to the PMS transcode launcher (PMSEncoder.java).
  */
-public class Command implements LoggerMixin, Cloneable {
+class Command implements LoggerMixin, Cloneable {
     Stash stash
     OutputParams params
     Level stashAssignmentLogLevel = Level.DEBUG

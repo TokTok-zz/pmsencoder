@@ -1,7 +1,7 @@
 @Typed
 package com.chocolatey.pmsencoder
 
-public class Script {
+class Script {
     Stage stage
     @Delegate private Matcher matcher
 

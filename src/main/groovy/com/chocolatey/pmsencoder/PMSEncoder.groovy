@@ -10,7 +10,7 @@ import net.pms.io.OutputParams
 import net.pms.io.ProcessWrapper
 import net.pms.PMS
 
-public class PMSEncoder extends MEncoderWebVideo implements LoggerMixin {
+class PMSEncoder extends MEncoderWebVideo implements LoggerMixin {
     public static final boolean isWindows = PMS.get().isWindows()
     private Plugin plugin
     private final static ThreadLocal threadLocal = new ThreadLocal<String>()

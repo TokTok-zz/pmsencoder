@@ -1,3 +1,5 @@
+import com.chocolatey.pmsencoder.Platform
+
 begin {
     IPAD_USER_AGENT = 'Mozilla/5.0 (iPad; U; CPU OS 3_2 like Mac OS X; en-us) ' +
         'AppleWebKit/531.21.10 (KHTML, like Gecko) ' +
@@ -11,7 +13,7 @@ begin {
     PPLIVE = pmsConf['pplive.path']
     PPLIVE_URI = pmsConf['pplive.uri'] ?: 'http://127.0.0.1:8888' // only used if PPLIVE is defined
     PYTHON = pmsConf['python.path']
-    RTMPDUMP = pmsConf['rtmpdump.path']
+    RTMPDUMP = pmsConf['rtmpdump.path'] ?: Platform.getExecutable('rtmpdump')
     SOPCAST = pmsConf['sopcast.path']
     SOPCAST_URI = pmsConf['sopcast.uri'] ?: 'http://127.0.0.1:8902/stream' // only used if SOPCAST is defined
     VLC = pmsConf['vlc.path']
