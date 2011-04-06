@@ -11,7 +11,7 @@ script {
 
         action {
             // confirm that it works in the action block
-            $URI = 'http://www.eurogamer.net/' + browse { $('a.download').@href }
+            uri = 'http://www.eurogamer.net/' + browse { $('a.download').@href }
         }
     }
 }

@@ -1,8 +1,6 @@
 @Typed
 package com.chocolatey.pmsencoder
 
-import com.sun.jna.Platform
-
 import net.pms.PMS
 
 public class Util {
@@ -14,15 +12,44 @@ public class Util {
         }
     }
 
-    // handle values that can be a String or a List.
-    // split the former along whitespace and return the latter as-is
-    public static List<String> stringList(Object stringOrList) {
+    // allow args lists to be assigned via a String or List
+    public static List<String> toStringList(Object stringOrList) {
         if (stringOrList == null) {
-            return []
+            null
+        } else if (stringOrList instanceof List) {
+            (stringOrList as List)*.toString()
         } else {
-            return (stringOrList instanceof List) ?
-                stringOrList.collect { it.toString() } :
-                stringOrList.toString().tokenize()
+            stringOrList.toString().tokenize()
+        }
+    }
+
+    // allow Command objects (hook, downloader, transcoder) to be assigned
+    // via String, List<String> or Command
+    public static <T extends Command> T toCommand(Class<T> klass, Object object) {
+        if (object == null) {
+            null
+        } else if (object instanceof List) {
+            def list = (object as List)
+            def executable = list.remove(0)
+            assert executable
+            def command = klass.newInstance()
+            command.executable = executable
+            command.args = list
+            // println "XXX: converted ${list} to ${command}"
+            command
+        } else if (klass.isAssignableFrom(object.class)) {
+            klass.cast(object)
+        } else {
+            // FIXME use Apache CommandLine to tokenize correctly
+            def list = object.toString().tokenize()
+            assert list
+            def executable = list.remove(0)
+            assert executable
+            def command = klass.newInstance()
+            command.executable = executable
+            command.args = list
+            // println "XXX: converted ${object.toString()} to ${command}"
+            command
         }
     }
 
@@ -39,6 +66,22 @@ public class Util {
     public static String quoteURI(String uri) {
         // double quote a URI to make it safe for cmd.exe
         // XXX need to test this
-        return PMS.get().isWindows() ? '"' + uri.replaceAll('"', '%22') + '"' : uri
+        return Platform.isWindows() ? '"' + uri.replaceAll('"', '%22') + '"' : uri
+    }
+
+    public static boolean fileExists(String path) {
+        path && fileExists(new File(path))
+    }
+
+    public static boolean fileExists(File file) {
+        (file != null) && file.exists() && file.isFile()
+    }
+
+    public static boolean directoryExists(String path) {
+        path && directoryExists(new File(path))
+    }
+
+    public static boolean directoryExists(File file) {
+        (file != null) && file.exists() && file.isDirectory()
     }
 }

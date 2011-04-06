@@ -7,9 +7,9 @@ script {
         }
 
         action {
-            $URI = $HTTP.target($URI)
+            uri = http.target(uri)
             scrape '\\bcurrentposition\\s*=\\s*(?<currentPosition>\\d+)\\s*;'
-            scrape "'(?<URI>http://\\w+\\.gamereport\\.de/videos/[^']+?/${currentPosition}/[^']+)'"
+            scrape "'(?<uri>http://\\w+\\.gamereport\\.de/videos/[^']+?/${currentPosition}/[^']+)'"
         }
     }
 }

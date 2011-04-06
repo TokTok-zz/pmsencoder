@@ -3,12 +3,12 @@
 script {
    profile ('Gameswelt') {
         pattern {
-            match $URI: '^http://www\\.gameswelt\\.de/videos/'
+            match uri: '^http://www\\.gameswelt\\.de/videos/'
         }
 
         action {
             // extract the video URI from the value of the flashvars param
-            scrape '<param\\s+name="flashvars".+(?<URI>http://video\\.gameswelt\\.de/[^&]+)'
+            scrape '<param\\s+name="flashvars".+(?<uri>http://video\\.gameswelt\\.de/[^&]+)'
         }
     }
 }

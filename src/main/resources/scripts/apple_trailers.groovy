@@ -1,13 +1,16 @@
 script {
     profile ('Apple Trailers') {
         pattern {
-            match $URI: '^http://(?:(?:movies|www|trailers)\\.)?apple\\.com/.+$'
+            match uri: '^http://(?:(?:movies|www|trailers)\\.)?apple\\.com/.+$'
         }
 
         action {
             // FIXME: temporary while MPlayer doesn't work as a downloader on Windows
-            $TRANSCODER = $MENCODER
-            set '-user-agent': 'QuickTime/7.6.2'
+            transcoder = $mencoder
+
+            args {
+                set '-user-agent': 'QuickTime/7.6.2'
+            }
         }
     }
 }

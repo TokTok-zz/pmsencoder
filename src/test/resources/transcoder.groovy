@@ -7,7 +7,7 @@ script {
         }
 
         action {
-            $TRANSCODER = [ transcoder, 'list', $URI ]
+            transcoder = [ transcoder, 'list', uri ]
         }
     }
 
@@ -17,7 +17,7 @@ script {
         }
 
         action {
-            $TRANSCODER = "$transcoder string ${$URI}"
+            transcoder = "$transcoder string $uri"
         }
     }
 }

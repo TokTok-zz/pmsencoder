@@ -1,7 +1,7 @@
 script {
     profile('Scrape') {
         pattern {
-            match { $URI == 'http://action.com' }
+            match { uri == 'http://action.com' }
         }
 
         action {
@@ -16,10 +16,12 @@ script {
         }
 
         action {
-            set '-foo':  42
-            set '-bar':  3.1415927
-            set '-baz':  true
-            set '-quux': null // but not this
+            args {
+                set '-foo':  42
+                set '-bar':  3.1415927
+                set '-baz':  true
+                set '-quux': null // but not this
+            }
         }
     }
 
@@ -29,7 +31,9 @@ script {
         }
 
         action {
-            set '-nocache'
+            args {
+                set '-nocache'
+            }
         }
     }
 
@@ -39,7 +43,9 @@ script {
         }
 
         action {
-            set '-foo':  42, '-bar':  3.1415927, '-baz': true, '-quux': null
+            args {
+                set '-foo':  42, '-bar':  3.1415927, '-baz': true, '-quux': null
+            }
         }
     }
 }

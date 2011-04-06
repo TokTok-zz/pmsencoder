@@ -16,7 +16,7 @@ script {
         }
 
         action {
-            $URI = "http://www.youtube.com/watch?v=${video_id}"
+            uri = "http://www.youtube.com/watch?v=${video_id}"
         }
     }
 
@@ -24,13 +24,13 @@ script {
         pattern {
             match ICHC
             match { IPAD_USER_AGENT }
-            scrape "\\bsrc='(?<URI>http://www\\.viddler\\.com/file/\\w+/html5mobile/)'"
+            scrape "\\bsrc='(?<uri>http://www\\.viddler\\.com/file/\\w+/html5mobile/)'"
         }
 
         action {
             // FIXME: temporary while MPlayer doesn't work as a downloader on Windows
-            $TRANSCODER = $MENCODER
-            set '-user-agent': IPAD_USER_AGENT
+            transcoder = $mencoder
+            args { set '-user-agent': IPAD_USER_AGENT }
         }
     }
 }

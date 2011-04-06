@@ -5,13 +5,17 @@ script {
         }
 
         action {
-            set '-base'
+            args {
+                set '-base'
+            }
         }
     }
 
     profile ('Inherit Pattern', extends: 'Base') {
         action {
-            set '-inherit': 'pattern'
+            args {
+                set '-inherit': 'pattern'
+            }
         }
     }
 

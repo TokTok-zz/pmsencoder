@@ -1,36 +1,34 @@
 @Typed
 package com.chocolatey.pmsencoder
 
-class ContextBlockTest extends PMSEncoderTestCase {
-    void testContextBlockSet() {
-        def uri = 'http://context-block-set.com'
+class ArgsTest extends PMSEncoderTestCase {
+    void testArgsSet() {
+        def uri = 'http://args.set.com'
         assertMatch([
-            script: '/context_block.groovy',
+            script: '/args.groovy',
             uri: uri,
-            wantMatches: [ 'Context Block', 'Context Block Set' ],
+            wantMatches: [ 'Args', 'Args Set' ],
             wantHook: [ 'hook', '-foo', '-bar', '-baz', '-quux' ],
             downloader: [ 'downloader', '-foo' ],
             wantDownloader: [ 'downloader', '-foo', '-bar' ],
             transcoder: [ 'transcoder', '-foo' ],
-            wantTranscoder: [ 'transcoder', '-foo', '-bar', '-baz' ],
             output: [ '-output', '-foo' ],
-            wantOutput: [ '-output', '-foo', '-bar' ]
+            wantTranscoder: [ 'transcoder', '-foo', '-bar', '-baz', '-output', '-foo', '-bar' ]
         ])
     }
 
-    void testContextBlockRemove() {
-        def uri = 'http://context-block-remove.com'
+    void testArgsRemove() {
+        def uri = 'http://args.remove.com'
         assertMatch([
-            script: '/context_block.groovy',
+            script: '/args.groovy',
             uri: uri,
-            wantMatches: [ 'Context Block', 'Context Block Remove' ],
+            wantMatches: [ 'Args', 'Args Remove' ],
             wantHook: [ 'hook', '-foo', '-baz' ],
             downloader: [ 'downloader', '-foo', '-bar', '-baz' ],
             wantDownloader: [ 'downloader', '-foo', '-baz' ],
             transcoder: [ 'transcoder', '-foo', '-bar', '-baz' ],
-            wantTranscoder: [ 'transcoder', '-foo' ],
             output: [ '-output', '-foo', '-bar', '-baz' ],
-            wantOutput: [ '-output', '-foo', '-baz' ]
+            wantTranscoder: [ 'transcoder', '-foo', '-output', '-foo', '-baz' ]
         ])
     }
 }

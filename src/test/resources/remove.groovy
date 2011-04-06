@@ -6,7 +6,9 @@ script {
 
         action {
             // -foo -bar -baz -quux -> -foo -baz -quux
-            remove '-bar'
+            args {
+                remove '-bar'
+            }
         }
     }
 
@@ -17,7 +19,9 @@ script {
 
         action {
             // -foo -bar baz -quux -> -foo -quux
-            remove '-bar'
+            args {
+                remove '-bar'
+            }
         }
     }
 
@@ -28,7 +32,9 @@ script {
 
         action {
             // -foo -bar -42 -quux -> -foo -quux
-            remove '-bar'
+            args {
+                remove '-bar'
+            }
         }
     }
 
@@ -38,8 +44,10 @@ script {
         }
 
         action {
-            // -foo -ouput - -quux -> -foo -quux
-            remove '-output'
+            // -foo -output - -quux -> -foo -quux
+            args {
+                remove '-output'
+            }
         }
     }
 }

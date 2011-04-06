@@ -8,8 +8,7 @@ script {
         }
 
         action {
-            $URI = quoteURI($URI)
-            $DOWNLOADER = "$PERL $GET_FLASH_VIDEOS --quality high --quiet --yes --filename DOWNLOADER_OUT ${$URI}"
+            downloader = "${PERL} ${GET_FLASH_VIDEOS} --quality high --quiet --yes --filename DOWNLOADER_OUT URI"
         }
     }
 }

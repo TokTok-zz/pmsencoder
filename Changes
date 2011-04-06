@@ -1,4 +1,6 @@
-1.5.6 TBC 
+2.0.0-RC1 TBC
+    - Breaking changes:
+        - renamed log -> logger
     - look in platform subdirectory for standalone executables (e.g. rtmpdump) if paths aren't defined in PMS.conf
     - DOWNLOADER_OUT and TRANSCODER_OUT are substituted at transcode time rather than being exposed as variables
 

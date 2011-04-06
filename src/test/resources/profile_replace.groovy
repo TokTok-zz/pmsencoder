@@ -6,7 +6,9 @@ script {
         }
 
         action {
-            set '-gametrailers': 'replacement'
+            args {
+                set '-gametrailers': 'replacement'
+            }
         }
     }
 }

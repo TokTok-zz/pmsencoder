@@ -2,25 +2,28 @@ script {
     profile ('file://') {
         pattern {
             protocol 'file'
-            match { $PROTOCOL == 'file' }
-            match { $PROTOCOL != 'http' }
+            match { protocol == 'file' }
+            match { protocol != 'http' }
         }
 
         action {
-            set '-protocol': $PROTOCOL
-
+            args {
+                set '-protocol': protocol
+            }
         }
     }
 
     profile ('http://') {
         pattern {
             protocol 'http'
-            match { $PROTOCOL == 'http' }
-            match { $PROTOCOL != 'file' }
+            match { protocol == 'http' }
+            match { protocol != 'file' }
         }
 
         action {
-            set '-protocol': $PROTOCOL
+            args {
+                set '-protocol': protocol
+            }
         }
     }
 }

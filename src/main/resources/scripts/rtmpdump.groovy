@@ -17,7 +17,7 @@ init {
 
         action {
             def rtmpdumpArgs = []
-            def pairs = $HTTP.getNameValuePairs($URI) // uses URLDecoder.decode to decode the name and value
+            def pairs = http.getNameValuePairs(uri) // uses URLDecoder.decode to decode the name and value
             def seenURL = false
 
             for (pair in pairs) {
@@ -29,7 +29,7 @@ init {
                     case '-r':
                     case '--rtmp':
                         if (value) {
-                            $URI = quoteURI(value)
+                            uri = value
                             seenURL = true
                         }
                         break
@@ -43,10 +43,10 @@ init {
 
             if (seenURL) {
                 // rtmpdump doesn't log to stdout, so no need to use -q on Windows
-                $DOWNLOADER = "$RTMPDUMP -o DOWNLOADER_OUT -r ${$URI}"
-                $DOWNLOADER += rtmpdumpArgs
+                downloader = "${RTMPDUMP} -o DOWNLOADER_OUT -r URI"
+                downloader += rtmpdumpArgs
             } else {
-                log.error("invalid rtmpdump:// URI: no -r or --rtmp parameter supplied: ${$URI}")
+                logger.error("invalid rtmpdump:// URI: no -r or --rtmp parameter supplied: ${uri}")
             }
         }
     }

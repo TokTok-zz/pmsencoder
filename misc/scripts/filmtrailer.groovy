@@ -44,15 +44,15 @@ script {
             */
 
             SIZES.any { size ->
-                log.info("looking for clip size: $size")
+                logger.info("looking for clip size: $size")
 
                 clips = flashVars.'**'.findAll { it.'@size' == size }.collect { it.text() }
 
                 if (clips.size() > 0) {
-                    log.info('success')
+                    logger.info('success')
                     return true
                 } else {
-                    log.info('failure')
+                    logger.info('failure')
                     return false
                 }
             }

@@ -23,9 +23,7 @@ class MatcherTest extends PMSEncoderTestCase {
             uri: 'http://www.example.com',
             // make sure nbcores is interpolated here as 3 in -threads 3
             // (this is mocked to 3 in PMSEncoderTestCase)
-            wantTranscoder: { List<String> transcoder ->
-                transcoder[4] = '-threads' && transcoder[5] == '3'
-            },
+            wantTranscoder: { List<String> transcoder -> transcoder.containsAll([ '-threads', '-3' ]) },
             useDefaultTranscoder: true
         ])
     }
@@ -34,9 +32,8 @@ class MatcherTest extends PMSEncoderTestCase {
         assertMatch([
             loadDefaultScripts: true,
             uri: 'http://www.apple.com/foobar.mov',
-            wantTranscoder: { List<String> transcoder ->
-                transcoder[-2] == '-user-agent' && transcoder[-1] == 'QuickTime/7.6.2'
-            },
+            // FIXME: needs to be moved to the downloader
+            wantTranscoder: { List<String> transcoder -> transcoder.containsAll([ '-user-agent', 'QuickTime/7.6.2' ]) },
             wantMatches: [ 'Apple Trailers' ]
         ])
     }
@@ -49,7 +46,7 @@ class MatcherTest extends PMSEncoderTestCase {
         youTubeCommon('35')
     }
 
-    // verify that globally modifying $YOUTUBE_ACCEPT works
+    // verify that globally modifying youtubeAccept works
     void testYOUTUBE_ACCEPT() {
         def script = this.getClass().getResource('/youtube_accept.groovy')
         youTubeCommon('34', script)
@@ -65,29 +62,29 @@ class MatcherTest extends PMSEncoderTestCase {
             wantMatches: ['YouTube Metadata', 'YouTube-DL Compatible', 'YouTube' ],
             wantStash: { Stash stash ->
                 assert stash.keySet().toList() == [
-                    '$URI',
-                    '$youtube_video_id',
-                    '$youtube_t',
-                    '$youtube_title',
-                    '$youtube_uploader',
-                    '$youtube_dl_compatible',
-                    '$youtube_uri',
-                    '$youtube_fmt'
+                    'uri',
+                    'youtube_video_id',
+                    'youtube_t',
+                    'youtube_title',
+                    'youtube_uploader',
+                    'youtube_dl_compatible',
+                    'youtube_uri',
+                    'youtube_fmt'
                 ]
 
-                def video_id = stash.get('$youtube_video_id')
+                def video_id = stash['youtube_video_id']
                 assert video_id == '_OBlgSz8sSM'
 
-                def t = stash.get('$youtube_t')
-                // the mysterious $t token changes frequently, but always seems to end in a URL-encoded "="
+                def t = stash['youtube_t']
+                // the mysterious t token changes frequently, but always seems to end in a URL-encoded "="
                 assert t =~ /.*%3D$/
-                assert stash.get('$youtube_uploader') == 'HDCYT'
-                assert stash.get('$youtube_fmt') == fmt
-                assert stash.get('$youtube_uri') == uri
-                assert stash.get('$URI') =~ '\\.youtube\\.com/videoplayback\\?'
+                assert stash['youtube_uploader'] == 'HDCYT'
+                assert stash['youtube_fmt'] == fmt
+                assert stash['youtube_uri'] == uri
+                assert stash['uri'] =~ '\\.youtube\\.com/videoplayback\\?'
                 return true
             },
-            wantTranscoder: []
+            wantTranscoder: [ 'transcoder' ]
         ])
     }
 
@@ -102,15 +99,12 @@ class MatcherTest extends PMSEncoderTestCase {
             loadDefaultScripts: true,
             uri: uri,
             wantStash: [
-                $URI:                   wantURI,
-                $gametrailers_movie_id: movie_id,
-                $gametrailers_page_id:  page_id,
-                $gametrailers_filename: filename
+                uri:                   wantURI,
+                gametrailers_movie_id: movie_id,
+                gametrailers_page_id:  page_id,
+                gametrailers_filename: filename
             ],
-            wantMatches: [
-                'GameTrailers (Revert PMS Workaround)',
-                'GameTrailers',
-            ]
+            wantMatches: [ 'GameTrailers' ]
         ])
     }
 }

@@ -8,7 +8,7 @@ class ScrapeTest extends PMSEncoderTestCase {
             script: '/scrape.groovy',
             uri: uri,
             wantMatches: [ 'Scrape String' ],
-            wantStash: [ $URI: uri, $first: 'scrape', $second: 'string' ]
+            wantStash: [ uri: uri, first: 'scrape', second: 'string' ]
         ])
     }
 }

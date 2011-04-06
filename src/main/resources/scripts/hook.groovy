@@ -5,7 +5,8 @@ script {
         }
 
         action {
-            $HOOK = [ NOTIFY_SEND, 'PMSEncoder', "playing ${$URI}" ]
+            // FIXME: use the title
+            hook = [ NOTIFY_SEND, 'PMSEncoder', "playing ${uri}" ]
         }
     }
 }

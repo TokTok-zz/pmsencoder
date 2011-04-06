@@ -7,7 +7,7 @@ script {
         }
 
         action {
-            $DOWNLOADER = [ downloader, 'list', $URI ]
+            downloader = [ downloader, 'list', uri ]
         }
     }
 
@@ -17,7 +17,7 @@ script {
         }
 
         action {
-            $DOWNLOADER = "$downloader string ${$URI}"
+            downloader = "$downloader string $uri"
         }
     }
 }
