@@ -1,11 +1,11 @@
 script {
-    profile ("GStrings") {
+    profile ('GStrings') {
         def closed_over = 'Hello, world!'
 
         pattern {
             domain = 'example'
             pattern = closed_over
-            match $URI: "http://www.${domain}.com"
+            match uri: "http://www.${domain}.com"
         }
 
         action {
@@ -13,9 +13,11 @@ script {
             key = 'key'
             value = 'value'
             n = 41
-            set "-$key": 'key'                                        // GString key
-            set '-value': "$value"                                    // GString value
-            $URI = "${$URI}/$domain/$key/$value/${n.toInteger() + 1}" // set GString property value
+            args {
+                set "-$key": 'key'     // GString key
+                set '-value': "$value" // GString value
+            }
+            uri = "$uri/$domain/$key/$value/${n.toInteger() + 1}" // set GString property value
         }
     }
 }

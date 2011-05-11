@@ -78,7 +78,7 @@ class RegexHelper {
                 if (name) {
                     if (named != null) {
                         String value = matcher.group(i, "") /* default to an empty string */
-                        named.put(name, value)
+                        named[name] = value
                     }
                 } else if (positional != null) {
                     String value = matcher.group(i, "") /* default to an empty string */

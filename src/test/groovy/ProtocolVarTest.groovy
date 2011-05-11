@@ -12,7 +12,7 @@ class ProtocolVarTest extends PMSEncoderTestCase {
         assertMatch([
             uri: 'file://some.file',
             wantMatches: [ 'file://' ],
-            wantTranscoder: [ '-protocol', 'file' ]
+            wantTranscoder: [ 'transcoder', '-protocol', 'file' ]
         ])
     }
 
@@ -20,7 +20,7 @@ class ProtocolVarTest extends PMSEncoderTestCase {
         assertMatch([
             uri: 'http://some.domain.com',
             wantMatches: [ 'http://' ],
-            wantTranscoder: [ '-protocol', 'http' ]
+            wantTranscoder: [ 'transcoder', '-protocol', 'http' ]
         ])
     }
 }

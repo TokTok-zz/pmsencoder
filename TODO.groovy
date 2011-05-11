@@ -150,8 +150,23 @@ Transcoders:
 Downloaders:
 
     MPlayer
+    RTMPDump
     CustomDownloader // e.g. get-flash-videos, youtube-dl
+
 */
+
+    class Downloader extends Command {
+        Args args
+        List<String> toList(downloaderOutputPath) {
+            [ executable ] + args.replaceAll('DOWNLOADER_OUT', downloaderOutputPath)
+        }
+    }
+
+    class MPlayer extends Downloader {
+        MPlayer() {
+            super(mplayerPath, defaultMplayerArgs)
+        }
+    }
 
 // Ruby-style initialization blocks?
 
@@ -236,3 +251,25 @@ transcoder = new NullTranscoder()
             transcoder = jsAction(uri)
         }
     }
+
+// pass renderer configuration in request
+
+// YouTube seeking: http://stackoverflow.com/questions/3302384/youtubes-hd-video-streaming-server-technology
+
+// PMS call player.mimeType(rendererConf) rather than player.mimeType() - wire the former to the latter in Engine.java
+
+// use slf4j/Logback and use the same debugLogPath as PMS
+
+// test/document new uri() method e.g.
+
+    match { uri().host == 'www.example.com' }
+    match { uri(uri).port == 8080 }
+
+// groovy at its grooviest: http://groovy.codehaus.org/Process+Management
+
+    def process = "seq 10 99".execute() | "tr 0123456789 9876543210".execute()
+    print process.text
+
+// implicit imports: automatically import e.g. Ffmpeg &c. into scripts:
+// TODO: see how gradle does it
+// http://groovy.329449.n5.nabble.com/Implicit-imports-for-scripts-td355430.html

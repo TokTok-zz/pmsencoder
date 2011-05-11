@@ -1,10 +1,12 @@
+import com.chocolatey.pmsencoder.MEncoder
+
 end {
     profile ('MPlayer') {
         pattern {
-            match { !$DOWNLOADER }
+            match { !downloader }
             match {
                 // http://www.ffmpeg.org/ffmpeg-doc.html#SEC33
-                $PROTOCOL && !($PROTOCOL in [
+                protocol && !(protocol in [
                     'concat',
                     'file',
                     'gopher',
@@ -24,8 +26,8 @@ end {
 
         action {
             // don't clobber MEncoder options if they've already been set
-            if (!($TRANSCODER[0] == 'MENCODER' || $TRANSCODER[0] == 'MENCODER_MT'))
-                $TRANSCODER = $MENCODER
+            if (!(transcoder instanceof MEncoder))
+                transcoder = new MEncoder()
         }
     }
 }

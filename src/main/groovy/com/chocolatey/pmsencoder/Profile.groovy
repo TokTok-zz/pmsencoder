@@ -33,28 +33,28 @@ class Profile implements LoggerMixin {
     boolean runPatternBlock(Pattern pattern) {
         if (patternBlock == null) {
             // unconditionally match
-            log.trace('no pattern block supplied: matched OK')
+            logger.trace('no pattern block supplied: matched OK')
         } else {
             // pattern methods short-circuit matching on failure by throwing a MatchFailureException,
             // so we need to wrap this in a try/catch block
 
             try {
                 patternBlock.delegate = pattern
-                patternBlock.resolveStrategy = Closure.DELEGATE_FIRST
+                patternBlock.resolveStrategy = Closure.DELEGATE_ONLY
                 patternBlock()
             } catch (MatchFailureException e) {
-                log.trace('pattern block: caught match exception')
+                logger.trace('pattern block: caught match exception')
                 // one of the match methods failed, so the whole block failed
-                log.debug("match $name: failure")
+                logger.debug("match $name: failure")
                 return false
             }
 
             // success simply means "no match failure exception was thrown" - this also handles cases where the
             // pattern block is empty
-            log.trace('pattern block: matched OK')
+            logger.trace('pattern block: matched OK')
         }
 
-        log.debug("match $name: success")
+        logger.debug("match $name: success")
         return true
     }
 
@@ -64,11 +64,11 @@ class Profile implements LoggerMixin {
     boolean runActionBlock(ProfileDelegate profileDelegate) {
         if (actionBlock != null) {
             def action = new Action(profileDelegate)
-            log.trace("running action block for: $name")
+            logger.trace("running action block for: $name")
             actionBlock.delegate = action
-            actionBlock.resolveStrategy = Closure.DELEGATE_FIRST
+            actionBlock.resolveStrategy = Closure.DELEGATE_ONLY
             actionBlock()
-            log.trace("finished action block for: $name")
+            logger.trace("finished action block for: $name")
             return true
         } else {
             return false
@@ -83,40 +83,32 @@ class Profile implements LoggerMixin {
         def profileDelegate = new ProfileDelegate(matcher, response)
 
         if (patternBlock == null) { // unconditionally match
-            log.trace('no pattern block supplied: matched OK')
+            logger.trace('no pattern block supplied: matched OK')
             runActionBlock(profileDelegate)
-            return true
+            // fall through to return true
         } else {
-            def newResponse = response.clone()
-            def patternProfileDelegate = new ProfileDelegate(matcher, newResponse)
+            // pass in a stash so that a) the pattern doesn't contaminate the response's
+            // stash with incomplete/aborted assignments in the event of a failed match
+            // and b) the pattern can suppress logging. in the latter case we log all the assignments
+            // *after* a successful match when the pattern's stash is merged into the response stash
+            def patternStash = new Stash()
+            def pattern = new Pattern(profileDelegate, patternStash)
 
-            // avoid clogging up the logfile with pattern-block stash assignments. If the pattern doesn't match,
-            // the assigments are irrelevant; and if it does match, the assignments are logged (below)
-            // when the pattern's temporary stash is merged into the response stash. Rather than suppressing these
-            // assignments completely, log them at the lowest (TRACE) level
-            newResponse.setStashAssignmentLogLevel(Level.TRACE)
-
-            // the pattern block has its own response object (which is initially the same as the action block's).
-            // if the match succeeds, then the pattern block's stash is merged into the action block's stash.
-            // this ensures that a partial match (i.e. a failed match) with side-effects/bindings doesn't contaminate
-            // the action, and, more importantly, it defers logging until the whole pattern block has
-            // completed successfully
-            def pattern = new Pattern(patternProfileDelegate)
-
-            log.debug("matching profile: $name")
+            logger.debug("matching profile: $name")
 
             // returns true if all matches in the block succeed, false otherwise
             if (runPatternBlock(pattern)) {
-                // we can now merge any side-effects (currently only modifications to the stash).
-                // first: merge (with logging)
-                newResponse.stash.each { name, value -> response.let(name, value) }
-                // now run the actions
+                // we can now merge any side-effects - i.e. modifications to the stash - and log them.
+                patternStash.each { name, value -> response.let(name, value) }
+                // now run the action
                 runActionBlock(profileDelegate)
-                return true
+                // fall through to return true
             } else {
                 return false
             }
         }
+
+        return true
     }
 
     public void assignPatternBlockIfNull(Profile profile) {

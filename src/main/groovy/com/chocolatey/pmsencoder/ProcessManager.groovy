@@ -4,6 +4,7 @@ package com.chocolatey.pmsencoder
 import net.pms.io.OutputParams
 import net.pms.io.PipeProcess
 import net.pms.io.ProcessWrapper
+import net.pms.io.ProcessWrapperImpl
 import net.pms.PMS
 
 private class ProcessManager implements LoggerMixin {
@@ -72,19 +73,19 @@ private class ProcessManager implements LoggerMixin {
 
         params.log = true
 
-        def hookProcess = new PMSEncoderProcessWrapper(cmdArray, params)
+        def hookProcess = new ProcessWrapperImpl(cmdArray, params)
 
-        log.info('hook command: ' + Arrays.toString(cmdArray))
+        logger.info('hook command: ' + Arrays.toString(cmdArray))
         hookProcess.runInNewThread()
         attachedProcesses << hookProcess
     }
 
-    public PMSEncoderProcessWrapper handleDownloadWindows(List<String> downloaderArgs, List<String> transcoderArgs) {
+    public ProcessWrapperImpl handleDownloadWindows(List<String> downloaderArgs, List<String> transcoderArgs) {
         def cmdList = ([ "cmd.exe", "/C" ] + downloaderArgs + "|" + transcoderArgs) as List<String>
         def cmdArray = listToArray(cmdList)
-        def pw = new PMSEncoderProcessWrapper(cmdArray, outputParams) // may modify cmdArray[0]
+        def pw = new ProcessWrapperImpl(cmdArray, outputParams) // may modify cmdArray[0]
 
-        log.info('command: ' + Arrays.toString(cmdArray))
+        logger.info('command: ' + Arrays.toString(cmdArray))
         return pw
     }
 
@@ -97,20 +98,20 @@ private class ProcessManager implements LoggerMixin {
         def params = new OutputParams(pmsencoder.getConfiguration())
         params.log = true
 
-        def downloaderProcess = new PMSEncoderProcessWrapper(cmdArray, params) // may modify cmdArray[0]
+        def downloaderProcess = new ProcessWrapperImpl(cmdArray, params) // may modify cmdArray[0]
         attachedProcesses << downloaderProcess
-        log.info('downloader command: ' + Arrays.toString(cmdArray))
+        logger.info('downloader command: ' + Arrays.toString(cmdArray))
         downloaderProcess.runInNewThread()
     }
 
-    public PMSEncoderProcessWrapper handleTranscode(List<String> transcoderArgs) {
+    public ProcessWrapperImpl handleTranscode(List<String> transcoderArgs) {
         def cmdArray = listToArray(transcoderArgs)
-        def transcoderProcess = new PMSEncoderProcessWrapper(cmdArray, outputParams) // may modify cmdArray[0]
-        log.info('transcoder command: ' + Arrays.toString(cmdArray))
+        def transcoderProcess = new ProcessWrapperImpl(cmdArray, outputParams) // may modify cmdArray[0]
+        logger.info('transcoder command: ' + Arrays.toString(cmdArray))
         return transcoderProcess
     }
 
-    public ProcessWrapper launchTranscode(PMSEncoderProcessWrapper transcoderProcess) {
+    public ProcessWrapper launchTranscode(ProcessWrapperImpl transcoderProcess) {
         attachedProcesses.each { transcoderProcess.attachProcess(it) }
         transcoderProcess.runInNewThread()
         sleepFor(LAUNCH_TRANSCODE_SLEEP)

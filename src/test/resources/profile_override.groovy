@@ -6,7 +6,9 @@ script {
         }
 
         action {
-            set '-game': 'trailers'
+            args {
+                set '-game': 'trailers'
+            }
         }
     }
 }

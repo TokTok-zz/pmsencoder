@@ -1,43 +1,30 @@
 @Typed
 package com.chocolatey.pmsencoder
 
+import java.lang.String as JString
+
 // a long-winded way of getting Java Strings and Groovy GStrings to play nice
-class Stash extends LinkedHashMap<java.lang.String, java.lang.String> {
+class Stash extends LinkedHashMap<JString, JString> {
     public Stash() {
         super()
     }
 
-    public Stash(Stash old) {
+    public Stash(Stash other) {
         super()
-        old.each { key, value -> this.put(key.toString(), value?.toString()) }
-    }
-
-    private java.lang.String canonicalize(Object key) {
-        java.lang.String name = key.toString()
-        name.startsWith('$') ? name : '$' + name
+        def self = this
+        other.each { key, value -> self[ key?.toString() ] = value?.toString() }
     }
 
     public Stash(Map map) {
-        map.each { key, value -> this.put(key.toString(), value?.toString()) }
+        def self = this
+        map.each { key, value -> self[ key?.toString() ] = value?.toString() }
     }
 
-    public java.lang.String put(java.lang.String key, java.lang.String value) {
-        super.put(canonicalize(key), value)
+    public JString getAt(Object key) {
+        this.get(key?.toString())
     }
 
-    public java.lang.String put(Object key, Object value) {
-        super.put(canonicalize(key), value?.toString())
-    }
-
-    public java.lang.String get(java.lang.String key) {
-        super.get(canonicalize(key))
-    }
-
-    public java.lang.String get(Object key) {
-        super.get(canonicalize(key))
-    }
-
-    public boolean containsKey(Object key) {
-        super.containsKey(canonicalize(key))
+    public JString putAt(Object key, Object value) {
+        this.put(key?.toString(), value?.toString())
     }
 }

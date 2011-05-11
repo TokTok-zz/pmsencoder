@@ -8,8 +8,8 @@ class ActionTest extends PMSEncoderTestCase {
             script: '/action.groovy',
             uri:    uri,
             wantStash: [
-                $URI: uri,
-                $rfc: '2606'
+                uri: uri,
+                rfc: '2606'
             ],
             wantMatches: [ 'Scrape' ]
         ])
@@ -20,6 +20,7 @@ class ActionTest extends PMSEncoderTestCase {
             script: '/action.groovy',
             uri:    'http://stringify.values',
             wantTranscoder: [
+                'transcoder',
                 '-foo',  '42',
                 '-bar',  '3.1415927',
                 '-baz',  'true',
@@ -32,10 +33,10 @@ class ActionTest extends PMSEncoderTestCase {
     // this went missing at some stage - make sure it stays put
     void testSetString() {
         assertMatch([
-            script:   '/action.groovy',
-            uri:      'http://set.string',
-            wantTranscoder: [ '-nocache' ],
-            wantMatches:  [ 'Set String' ]
+            script:         '/action.groovy',
+            uri:            'http://set.string',
+            wantTranscoder: [ 'transcoder', '-nocache' ],
+            wantMatches:    [ 'Set String' ]
         ])
     }
 
@@ -44,6 +45,7 @@ class ActionTest extends PMSEncoderTestCase {
             script: '/action.groovy',
             uri:    'http://set.map',
             wantTranscoder: [
+                'transcoder',
                 '-foo',  '42',
                 '-bar',  '3.1415927',
                 '-baz',  'true',

@@ -6,7 +6,7 @@ init {
         }
 
         action {
-            $URI = $HTTP.target($URI) ?: $URI
+            uri = http.target(uri) ?: uri
         }
     }
 }

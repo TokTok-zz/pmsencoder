@@ -1,5 +1,5 @@
 script {
-    def transcoder = '/usr/bin/transcoder'
+    def transcoder_path = '/usr/bin/transcoder'
 
     profile ('Transcoder List') {
         pattern {
@@ -7,7 +7,7 @@ script {
         }
 
         action {
-            $TRANSCODER = [ transcoder, 'list', $URI ]
+            transcoder = [ transcoder_path, 'list', uri ]
         }
     }
 
@@ -17,7 +17,7 @@ script {
         }
 
         action {
-            $TRANSCODER = "$transcoder string ${$URI}"
+            transcoder = "$transcoder_path string $uri"
         }
     }
 }

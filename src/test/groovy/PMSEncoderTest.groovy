@@ -4,21 +4,8 @@ package com.chocolatey.pmsencoder
 import net.pms.PMS
 
 class PMSEncoderTest extends PMSEncoderTestCase {
-    void testResponseClone() {
-        def response = new Response([ foo: 'bar' ], [ 'baz', 'quux' ])
-        assert response != null
-        def newResponse = response.clone()
-        assert newResponse != null
-
-        assert !response.stash.is(newResponse.stash)
-        assert !response.transcoder.is(newResponse.transcoder)
-        assert !response.is(newResponse)
-        assert newResponse.stash == [ $foo: 'bar' ]
-        assert newResponse.transcoder == [ 'baz', 'quux' ]
-    }
-
     void testResponseCopy() {
-        def response = new Response([ foo: 'bar' ], [ 'baz', 'quux' ])
+        def response = new Response(new Stash([ foo: 'bar' ]), Util.toCommand(TestTranscoder.class, [ 'baz', 'quux' ]))
         assert response != null
         def newResponse = new Response(response)
         assert newResponse != null
@@ -26,17 +13,17 @@ class PMSEncoderTest extends PMSEncoderTestCase {
         assert !response.stash.is(newResponse.stash)
         assert !response.transcoder.is(newResponse.transcoder)
         assert !response.is(newResponse)
-        assert newResponse.stash == [ $foo: 'bar' ]
-        assert newResponse.transcoder == [ 'baz', 'quux' ]
+        assert newResponse.stash == response.stash
+        assert newResponse.transcoder == response.transcoder
     }
 
-    void testStashClone() {
+    void testStashCopy() {
         def stash = new Stash([ foo: 'bar' ])
         assert stash != null
         def newStash = new Stash(stash)
         assert newStash != null
         assert !stash.is(newStash)
-        assert newStash == [ $foo: 'bar' ]
+        assert newStash == new Stash([ foo: 'bar' ])
     }
 
     void testProfileValidationDelegateInitalState() {

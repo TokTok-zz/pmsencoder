@@ -2,6 +2,8 @@
 package com.chocolatey.pmsencoder
 
 import static com.chocolatey.pmsencoder.Util.guard
+import static com.chocolatey.pmsencoder.Util.fileExists
+import static com.chocolatey.pmsencoder.Util.directoryExists
 
 import static groovy.io.FileType.FILES
 import groovy.swing.SwingBuilder // TODO
@@ -23,9 +25,9 @@ import no.geosoft.cc.io.FileMonitor
 import org.apache.log4j.xml.DOMConfigurator
 
 class Plugin implements ExternalListener, FileListener {
-    private static final String VERSION = '1.5.6'
+    private static final String VERSION = '2.0.0-RC1'
     private static final String DEFAULT_SCRIPT_DIRECTORY = 'pmsencoder'
-    private static final String LOG_CONFIG = 'pmsencoder.log.config'
+    private static final String LOG_CONFIG = 'pmsencoder.logger.config'
     private static final String SCRIPT_DIRECTORY = 'pmsencoder.script.directory'
     private static final String SCRIPT_POLL = 'pmsencoder.script.poll'
     // 1 second is flaky - it results in overlapping file change events
@@ -63,7 +65,8 @@ class Plugin implements ExternalListener, FileListener {
         // cast the expression to the type of the default value (int) and return the default value
         // (0) if an exception (in this case a java.lang.NumberFormatException) is thrown
         String scriptPollString = configuration.getCustomProperty(SCRIPT_POLL)
-        // changing this "int" to "def" produces a Verify error (see TODO.groovy)
+        // changing this "int" to "def" used to produce a Verify error (see TODO.groovy passim),
+        // but as of Groovy++ 0.4.180 (or thereabouts) gives a more helpful error
         int candidateScriptPollInterval = guard (0) { scriptPollString.toInteger() }
 
         // handle scripts
@@ -152,14 +155,6 @@ class Plugin implements ExternalListener, FileListener {
         } catch (Exception e) {
             error("error loading built-in log4j config file ($defaultLogConfig)", e)
         }
-    }
-
-    private boolean fileExists(File file) {
-        (file != null) && file.exists() && file.isFile()
-    }
-
-    private boolean directoryExists(File file) {
-        (file != null) && file.exists() && file.isDirectory()
     }
 
     private void info(String message) {

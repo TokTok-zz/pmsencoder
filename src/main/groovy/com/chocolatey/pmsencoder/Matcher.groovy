@@ -15,40 +15,62 @@ class PMSConf { // no need to extend HashMap<...>: we only need the subscript - 
 
 // XXX note: only public methods can be delegated to
 class Matcher implements LoggerMixin {
-    @Lazy private HTTPClient http = new HTTPClient()
-    // this is the default Map type, but let's be explicit as we strictly need this type
     private Map<String, Profile> profiles = new LinkedHashMap<String, Profile>()
-    private PMS pms
-    private List<String> mencoderArgs = []
-    private List<String> mplayerArgs = []
-    private List<String> ffmpegArgs = []
-    private List<String> ffmpegOut = []
-    private List<Integer> youtubeAccept = []
-    private Map<String, Object> stash = new HashMap<String, Object>()
+    private GroovyShell groovy
+    PMS pms
+    List<Integer> youtubeAccept = []
     PMSConf pmsConf = new PMSConf()
+    // @Lazy HTTPClient http = new HTTPClient()
+    HTTPClient http = new HTTPClient()
+    Stash stash = new Stash()
+    static Class<? extends Transcoder> defaultTranscoderClass = Ffmpeg.class
 
     Matcher(PMS pms) {
         this.pms = pms
+
+        def binding = new Binding(
+            begin:  this.&begin,
+            init:   this.&init,
+            script: this.&script,
+            check:  this.&check,
+            end:    this.&end
+        )
+
+        groovy = new GroovyShell(binding)
     }
 
-    // live interface (via PMSEncoder -> Plugin)
+    static Transcoder createDefaultTranscoder() {
+        return defaultTranscoderClass.newInstance()
+    }
+
+    private URL getResource(String name) {
+        return this.getClass().getResource("/${name}");
+    }
+
+    // production interface (via PMSEncoder -> Plugin)
     Response match(Request request) {
         def response = new Response(request)
         match(response, true)
     }
 
     // test interface (chiefly via PMSEncoderTestCase)
-    Response match(Response response, boolean useDefault = true) {
+    // write this out explicitly to avoid issues with default args and delegation
+    Response match(Response response) {
+        match(response, true)
+    }
+
+    Response match(Response response, boolean useDefault) {
         try {
             if (useDefault) {
-                response.transcoder = ffmpegArgs*.toString()
-                response.output = ffmpegOut*.toString()
+                response.transcoder = createDefaultTranscoder()
             }
 
-            def uri = response.getVar('$URI')
-            log.debug("matching URI: $uri")
+            assert response.transcoder != null
 
-            // XXX this is horribly inefficient, but it's a) trivial to implement and b) has the right semantics
+            def uri = response['uri']
+            logger.debug("matching URI: ${uri}")
+
+            // XXX this is horribly inefficient, but it's a) trivial to implement and b) has the right semantics.
             // the small number of scripts make this a non-issue for now
             Stage.each { stage ->
                 profiles.values().each { profile ->
@@ -64,17 +86,16 @@ class Matcher implements LoggerMixin {
             def matched = response.matches.size() > 0
 
             if (matched) {
-                log.trace("response: $response")
+                logger.trace("response: ${response}")
             }
         } catch (Throwable e) {
-            log.error('match error: ' + e)
+            logger.error('match error: ' + e)
             PMS.error('PMSEncoder: match error', e)
         }
 
         return response
     }
 
-    // DSL method
     // a Profile consists of a name, a pattern block and an action block - all
     // determined when the script is loaded/compiled
     public void registerProfile(String name, Stage stage, Map<String, String> options, Closure closure) {
@@ -84,13 +105,13 @@ class Matcher implements LoggerMixin {
 
         if (replaces != null) {
             target = replaces
-            log.info("replacing profile $replaces with: $name")
+            logger.info("replacing profile ${replaces} with: ${name}")
         } else {
             target = name
             if (profiles[name] != null) {
-                log.info("replacing profile: $name")
+                logger.info("replacing profile: ${name}")
             } else {
-                log.info("registering ${stage.toString().toLowerCase()} profile: $name")
+                logger.info("registering ${stage.toString().toLowerCase()} profile: ${name}")
             }
         }
 
@@ -103,7 +124,7 @@ class Matcher implements LoggerMixin {
 
             if (extendz != null) {
                 if (profiles[extendz] == null) {
-                    log.error("attempt to extend a nonexistent profile: $extendz")
+                    logger.error("attempt to extend a nonexistent profile: ${extendz}")
                 } else {
                     def base = profiles[extendz]
                     profile.assignPatternBlockIfNull(base)
@@ -115,7 +136,7 @@ class Matcher implements LoggerMixin {
             // itself. the key allows replacement
             profiles[target] = profile
         } catch (Throwable e) {
-            log.error("invalid profile ($name): " + e.getMessage())
+            logger.error("invalid profile (${name}): " + e.getMessage())
         }
     }
 
@@ -136,182 +157,99 @@ class Matcher implements LoggerMixin {
     }
 
     // we could impose a constraint here that a script (file) must
-    // contain exactly one script block, but why bother?
+    // contain exactly one stage block, but why bother?
     void load(Reader reader, String filename) {
-        def binding = new Binding(
-            begin:  this.&begin,
-            init:   this.&init,
-            script: this.&script,
-            check:  this.&check,
-            end:    this.&end
-        )
-
-        def groovy = new GroovyShell(binding)
-
         groovy.evaluate(reader, filename)
     }
 
     void loadUserScripts(File scriptDirectory) {
         if (!scriptDirectory.isDirectory()) {
-            log.error("invalid user script directory ($scriptDirectory): not a directory")
+            logger.error("invalid user script directory (${scriptDirectory}): not a directory")
         } else if (!scriptDirectory.exists()) {
-            log.error("invalid user script directory ($scriptDirectory): directory doesn't exist")
+            logger.error("invalid user script directory (${scriptDirectory}): directory doesn't exist")
         } else {
-            log.info("loading user scripts from: $scriptDirectory")
+            logger.info("loading user scripts from: ${scriptDirectory}")
             scriptDirectory.eachFileRecurse(FILES) { File file ->
                 def filename = file.getName()
                 if (filename.endsWith('.groovy')) {
-                    log.info("loading user script: $filename")
+                    logger.info("loading user script: ${filename}")
                     try {
                         load(file)
                     } catch (Exception e) {
                         def path = file.getAbsolutePath()
-                        log.error("can't load user script: $path", e)
+                        logger.error("can't load user script: ${path}", e)
                     }
                 }
             }
         }
     }
 
-    private URL getResource(String name) {
-        return this.getClass().getResource("/$name");
-    }
-
     void loadDefaultScripts() {
-        log.info('loading built-in scripts')
+        logger.info('loading built-in scripts')
 
         getResource('lib.txt').eachLine() { String scriptName ->
-            log.info("loading built-in script: $scriptName")
+            logger.info("loading built-in script: ${scriptName}")
             def scriptURL = getResource(scriptName)
             if (scriptURL == null) {
-                log.error("can't load $scriptURL")
+                logger.error("can't load ${scriptURL}")
             } else {
                 load(scriptURL)
             }
         }
     }
 
-    Object propertyMissing(String name) {
-        log.trace("retrieving global variable: $name")
+    String getAt(String name) {
         return stash[name]
     }
 
-    Object propertyMissing(String name, Object value) {
-        log.info("setting global variable: $name = $value")
+    String putAt(String name, Object value) {
+        return stash[name] = value?.toString()
+    }
+
+    // DSL method
+    String propertyMissing(String name) {
+        logger.trace("retrieving global variable: ${name}")
+        return stash[name]
+    }
+
+    // DSL method
+    String propertyMissing(String name, Object value) {
+        logger.info("setting global variable: ${name} = ${value}")
         return stash[name] = value
-    }
-
-    protected Object getVar(String name) {
-        stash[name]
-    }
-
-    protected boolean hasVar(String name) {
-        stash.containsKey(name)
-    }
-
-    protected Object setVar(String name, Object value) {
-        stash[name] = value
     }
 
     // DSL method
     protected void begin(Closure closure) {
         closure.delegate = new Script(this, Stage.BEGIN)
-        closure.resolveStrategy = Closure.DELEGATE_FIRST
+        closure.resolveStrategy = Closure.DELEGATE_ONLY
         closure()
     }
 
     // DSL method
     protected void init(Closure closure) {
         closure.delegate = new Script(this, Stage.INIT)
-        closure.resolveStrategy = Closure.DELEGATE_FIRST
+        closure.resolveStrategy = Closure.DELEGATE_ONLY
         closure()
     }
 
     // DSL method
     protected void script(Closure closure) {
         closure.delegate = new Script(this, Stage.SCRIPT)
-        closure.resolveStrategy = Closure.DELEGATE_FIRST
+        closure.resolveStrategy = Closure.DELEGATE_ONLY
         closure()
     }
 
     // DSL method
     protected void check(Closure closure) {
         closure.delegate = new Script(this, Stage.CHECK)
-        closure.resolveStrategy = Closure.DELEGATE_FIRST
+        closure.resolveStrategy = Closure.DELEGATE_ONLY
         closure()
     }
 
     // DSL method
     protected void end(Closure closure) {
         closure.delegate = new Script(this, Stage.END)
-        closure.resolveStrategy = Closure.DELEGATE_FIRST
+        closure.resolveStrategy = Closure.DELEGATE_ONLY
         closure()
-    }
-
-    // DSL properties
-
-    // $HTTP: getter
-    public HTTPClient get$HTTP() {
-        http
-    }
-
-    // $PMS: getter
-    public final PMS get$PMS() {
-        pms
-    }
-
-    // DSL getter: $MENCODER
-    public List<String> get$MENCODER() {
-        mencoderArgs
-    }
-
-    // DSL setter: $MENCODER
-    public List<String> set$MENCODER(Object stringOrList) {
-        mencoderArgs = Util.stringList(stringOrList)
-    }
-
-    // DSL getter: $MPLAYER
-    public List<String> get$MPLAYER() {
-        mplayerArgs
-    }
-
-    // DSL setter: $MPLAYER
-    public List<String> set$MPLAYER(Object stringOrList) {
-        mplayerArgs = Util.stringList(stringOrList)
-    }
-
-    // DSL getter: $FFMPEG
-    public List<String> get$FFMPEG() {
-        ffmpegArgs
-    }
-
-    // DSL setter: $FFMPEG
-    public List<String> set$FFMPEG(Object stringOrList) {
-        ffmpegArgs = Util.stringList(stringOrList)
-    }
-
-    // DSL getter: $FFMPEG_OUT
-    public List<String> get$FFMPEG_OUT() {
-        ffmpegOut
-    }
-
-    // DSL setter: $FFMPEG_OUT
-    public List<String> set$FFMPEG_OUT(Object stringOrList) {
-        ffmpegOut = Util.stringList(stringOrList)
-    }
-
-    // DSL getter: $YOUTUBE_ACCEPT
-    public List<Integer> get$YOUTUBE_ACCEPT() {
-        youtubeAccept
-    }
-
-    // DSL setter: $YOUTUBE_ACCEPT
-    public List<Integer> set$YOUTUBE_ACCEPT(List<Integer> args) {
-        youtubeAccept = args
-    }
-
-    // $OS: getter
-    public final String get$OS() {
-        System.getProperty('os.name')
     }
 }

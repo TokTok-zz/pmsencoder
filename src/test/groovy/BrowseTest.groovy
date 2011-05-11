@@ -13,7 +13,7 @@ class BrowseTest extends PMSEncoderTestCase {
             uri: 'http://www.eurogamer.net/videos/uncharted-3-chateau-gameplay-part-2',
             wantMatches: [ 'Browse' ],
             wantStash: [
-                '$URI':
+                'uri':
                 'http://www.eurogamer.net/downloads/80345/uncharted-3-chateau-gameplay-part-2_stream_h264v2_large.mp4'
             ]
         ])

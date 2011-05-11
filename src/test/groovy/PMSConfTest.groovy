@@ -6,7 +6,7 @@ class PMSConfTest extends PMSEncoderTestCase {
         assertMatch([
             script: '/pmsconf.groovy',
             wantMatches: [ 'pmsConf' ],
-            wantTranscoder: [ '-rtmpdump-path', '/usr/bin/rtmpdump' ]
+            wantTranscoder: [ 'transcoder', '-rtmpdump-path', '/usr/bin/rtmpdump' ]
         ])
     }
 }

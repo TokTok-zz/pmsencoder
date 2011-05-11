@@ -28,6 +28,21 @@ abstract class PMSEncoderTestCase extends GroovyTestCase {
             public Object getCustomProperty(String key) {
                 return key == 'rtmpdump.path' ? '/usr/bin/rtmpdump' : null
             }
+
+            @Mock
+            public String getFfmpegPath() { 'ffmpeg' }
+
+            @Mock
+            public String getMencoderPath() { 'mencoder' }
+
+            @Mock
+            public String getMencoderMTPath() { 'mencoder_mt' }
+
+            @Mock
+            public String getMplayerPath() { 'mplayer' }
+
+            @Mock
+            public String getVlcPath() { 'vlc' }
         }
 
         new MockUp<PMS>() {
@@ -37,12 +52,18 @@ abstract class PMSEncoderTestCase extends GroovyTestCase {
             public boolean init () { true }
 
             @Mock
+            public static PmsConfiguration getConfiguration() { pmsConfig }
+
+            @Mock
             public static void minimal(String msg) {
-                println msg
+                println "PMS info: " + msg
             }
 
             @Mock
-            public static PmsConfiguration getConfiguration() { pmsConfig }
+            public static void error(String msg, Throwable t) {
+                print "PMS error: $msg"
+                t.printStackTrace()
+            }
         }
 
         pms = PMS.get()
@@ -90,20 +111,19 @@ abstract class PMSEncoderTestCase extends GroovyTestCase {
             stash = new Stash(map)
         } else { // uri can be null (not all tests need it)
             String uri = spec['uri']
-            stash = new Stash([ $URI: uri ])
+            stash = new Stash([ uri: uri ])
         }
 
         List<String> wantMatches = getValue(spec, 'wantMatches')
-        List<String> hook = getValue(spec, 'hook')
-        List<String> downloader = getValue(spec, 'downloader')
-        List<String> transcoder = getValue(spec, 'transcoder')
-        List<String> output = getValue(spec, 'output')
+        List<String> hookList = getValue(spec, 'hook')
+        List<String> downloaderList = getValue(spec, 'downloader')
+        List<String> transcoderList = getValue(spec, 'transcoder')
+        List<String> outputList = getValue(spec, 'output')
 
         def wantStash = getValue(spec, 'wantStash')
         def wantHook = getValue(spec, 'wantHook')
         def wantDownloader = getValue(spec, 'wantDownloader')
         def wantTranscoder = getValue(spec, 'wantTranscoder')
-        def wantOutput = getValue(spec, 'wantOutput')
 
         boolean useDefaultTranscoder = getValue(spec, 'useDefaultTranscoder', false)
 
@@ -114,34 +134,28 @@ abstract class PMSEncoderTestCase extends GroovyTestCase {
             }
         }
 
-        def response
+        // populate the response
+        def response, hook, downloader
+        def transcoder = transcoderList ? Util.toCommand(TestTranscoder.class, transcoderList) : new TestTranscoder()
 
-        if (transcoder != null) {
-            if (stash != null) {
-                response = new Response(stash, transcoder)
-            } else {
-                response = new Response(transcoder)
-            }
-        } else if (stash != null) {
-            response = new Response(stash)
+        if (stash != null) {
+            response = new Response(stash, transcoder)
         } else {
-            response = new Response()
+            response = new Response(transcoder)
         }
 
-        if (hook != null) {
-            response.hook = hook
+        if (hookList != null) {
+            // FIXME: why doesn't assignment via response.hook = ... work?
+            response.setHook(hookList)
         }
 
-        if (downloader != null) {
-            response.downloader = downloader
+        if (downloaderList != null) {
+            // FIXME: cryptic bytecode error when assigning via downloader = ...
+            response.setDownloader(downloaderList)
         }
 
-        if (transcoder != null) {
-            response.transcoder = transcoder
-        }
-
-        if (output != null) {
-            response.output = output
+        if (outputList != null) {
+            response.transcoder.setOutput(outputList)
         }
 
         matcher.match(response, useDefaultTranscoder)
@@ -172,35 +186,35 @@ abstract class PMSEncoderTestCase extends GroovyTestCase {
             }
         }
 
+        String uri = stash['uri'] // possibly null
+
         if (wantHook != null) {
+            assert response.hook != null
+            def gotHook = response.hook.toList(uri)
             if (wantHook instanceof Closure) {
-                assert (wantHook as Closure).call(response.hook)
+                assert (wantHook as Closure).call(gotHook)
             } else {
-                assert response.hook == wantHook
+                assert gotHook == wantHook
             }
         }
 
         if (wantDownloader != null) {
+            assert response.downloader != null
+            def gotDownloader = response.downloader.toList(uri, 'DOWNLOADER_OUT') // preserve the default
             if (wantDownloader instanceof Closure) {
-                assert (wantDownloader as Closure).call(response.downloader)
+                assert (wantDownloader as Closure).call(gotDownloader)
             } else {
-                assert response.downloader == wantDownloader
+                assert gotDownloader == wantDownloader
             }
         }
 
         if (wantTranscoder != null) {
+            assert response.transcoder != null
+            def gotTranscoder = response.transcoder.toList(uri, 'TRANSCODER_OUT') // preserve the default
             if (wantTranscoder instanceof Closure) {
-                assert (wantTranscoder as Closure).call(response.transcoder)
+                assert (wantTranscoder as Closure).call(gotTranscoder)
             } else {
-                assert response.transcoder == wantTranscoder
-            }
-        }
-
-        if (wantOutput != null) {
-            if (wantOutput instanceof Closure) {
-                assert (wantOutput as Closure).call(response.output)
-            } else {
-                assert response.output == wantOutput
+                assert gotTranscoder == wantTranscoder
             }
         }
     }

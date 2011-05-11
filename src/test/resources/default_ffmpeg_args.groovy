@@ -1,3 +1,5 @@
+import com.chocolatey.pmsencoder.Ffmpeg
+
 script {
-    $FFMPEG = [ '-default', '-ffmpeg', '-args' ]
+    Ffmpeg.defaultArgs = [ '-default', '-ffmpeg', '-args' ]
 }

@@ -11,36 +11,36 @@ class RemoveTest extends PMSEncoderTestCase {
     void testRemoveName() {
         assertMatch([
             uri: 'http://remove.name',
-            transcoder: [ '-foo', '-bar', '-baz', '-quux' ],
+            transcoder: [ 'transcoder', '-foo', '-bar', '-baz', '-quux' ],
             wantMatches: [ 'Remove Name' ],
-            wantTranscoder: [ '-foo', '-baz', '-quux' ]
+            wantTranscoder: [ 'transcoder', '-foo', '-baz', '-quux' ]
         ])
     }
 
     void testRemoveValue() {
         assertMatch([
             uri: 'http://remove.value',
-            transcoder: [ '-foo', '-bar', 'baz', '-quux' ],
+            transcoder: [ 'transcoder', '-foo', '-bar', 'baz', '-quux' ],
             wantMatches: [ 'Remove Value' ],
-            wantTranscoder: [ '-foo', '-quux' ]
+            wantTranscoder: [ 'transcoder', '-foo', '-quux' ]
         ])
     }
 
     void testDigitValue() {
         assertMatch([
             uri: 'http://digit.value',
-            transcoder: [ '-foo', '-bar', '-42', '-quux' ],
+            transcoder: [ 'transcoder', '-foo', '-bar', '-42', '-quux' ],
             wantMatches: [ 'Digit Value' ],
-            wantTranscoder: [ '-foo', '-quux' ]
+            wantTranscoder: [ 'transcoder', '-foo', '-quux' ]
         ])
     }
 
     void testHyphenValue() {
         assertMatch([
             uri: 'http://hyphen.value',
-            transcoder: [ '-foo', '-output', '-', '-quux' ],
+            transcoder: [ 'transcoder', '-foo', '-output', '-', '-quux' ],
             wantMatches: [ 'Hyphen Value' ],
-            wantTranscoder: [ '-foo', '-quux' ]
+            wantTranscoder: [ 'transcoder', '-foo', '-quux' ]
         ])
     }
 }

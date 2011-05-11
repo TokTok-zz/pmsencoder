@@ -1,3 +1,5 @@
+import com.chocolatey.pmsencoder.MEncoder
+
 /*
     navix://channel?url=http%3A//example.com&referer=http%3A//example.com&agent=Mozilla
 
@@ -25,7 +27,7 @@ init {
 
         action {
             def mencoderArgs = []
-            def pairs = $HTTP.getNameValuePairs($URI) // uses URLDecoder.decode to decode the name and value
+            def pairs = http.getNameValuePairs(uri) // uses URLDecoder.decode to decode the name and value
             def seenURL = false
 
             for (pair in pairs) {
@@ -36,7 +38,7 @@ init {
                     case 'url':
                         if (value) {
                             // quote handling is built in for MEncoder
-                            $URI = value
+                            uri = value
                             seenURL = true
                         }
                         break
@@ -50,17 +52,18 @@ init {
                         break
                     case 'player':
                         if (value)
-                            log.info("player option for navix:// protocol currently ignored: ${value}")
+                            logger.info("player option for navix:// protocol currently ignored: ${value}")
                         break
                     default:
-                        log.warn("unsupported navix:// option: ${name}=${value}")
+                        logger.warn("unsupported navix:// option: ${name}=${value}")
                 }
             }
 
             if (seenURL) {
-                $TRANSCODER = $MENCODER + mencoderArgs
+                transcoder = new MEncoder()
+                transcoder.args.append(mencoderArgs)
             } else {
-                log.error("invalid navix:// URI: no url parameter supplied: ${$URI}")
+                logger.error("invalid navix:// URI: no url parameter supplied: ${uri}")
             }
         }
     }

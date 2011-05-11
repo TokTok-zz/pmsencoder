@@ -5,7 +5,8 @@ script {
         }
 
         action {
-            $HOOK = [ NOTIFY_SEND, 'PMSEncoder', "playing ${$URI}" ]
+            def name = request.dlna.getName()
+            hook = [ NOTIFY_SEND, 'PMSEncoder', "playing ${name}" ]
         }
     }
 }

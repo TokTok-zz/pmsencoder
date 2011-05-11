@@ -6,7 +6,9 @@ script {
         }
 
         action {
-            set '-rtmpdump-path': pmsConf['rtmpdump.path']
+            args {
+                set '-rtmpdump-path': pmsConf['rtmpdump.path']
+            }
         }
     }
 }

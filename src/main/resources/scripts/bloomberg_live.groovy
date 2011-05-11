@@ -8,12 +8,11 @@
 script {
     profile('Bloomberg Live') {
         pattern {
-            match $URI: '\\blm\\.akamaistream\\.net/D/'
+            match uri: '\\blm\\.akamaistream\\.net/D/'
         }
 
         action {
-            // fix sync issues (these are in the stream itself)
-            set '-delay': 0.2
+            args { set '-delay': 0.2 } // fix sync issues (these are in the stream itself)
         }
     }
 }

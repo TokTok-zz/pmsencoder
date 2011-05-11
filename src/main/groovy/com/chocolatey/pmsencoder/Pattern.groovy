@@ -2,30 +2,48 @@
 package com.chocolatey.pmsencoder
 
 class Pattern {
-    @Delegate private ProfileDelegate profileDelegate
-    protected static final MatchFailureException STOP_MATCHING = new MatchFailureException()
     // FIXME: sigh: transitive delegation doesn't work (groovy bug)
+    // The order is important! Don't delegate to Matcher's propertyMissing
+    // before the ProfileDelegate method
+    @Delegate private final Response response
+    @Delegate private final ProfileDelegate profileDelegate
     @Delegate private final Matcher matcher
+    private final Stash stash
+    protected static final MatchFailureException STOP_MATCHING = new MatchFailureException()
 
-    Pattern(ProfileDelegate profileDelegate) {
+    Pattern(ProfileDelegate profileDelegate, Stash stash) {
         this.profileDelegate = profileDelegate
+        this.stash = stash
         this.matcher = profileDelegate.matcher
+        this.response = profileDelegate.response
     }
 
-    // DSL setter - overrides the ProfileDelegate method to avoid logging,
-    // which is handled later (if the match succeeds) by merging the pattern
-    // block's temporary stash
-    protected String propertyMissing(String name, Object value) {
-        response.setVar(name, value)
+    String propertyMissing(String name) {
+        if (stash.containsKey(name)) {
+            stash[name]
+        } else {
+            profileDelegate.propertyMissing(name)
+        }
     }
 
-    protected String propertyMissing(String name) {
-        profileDelegate.propertyMissing(name)
+    String propertyMissing(String name, Object value) {
+        stash[name] = value?.toString()
+    }
+
+    private String domainToRegex(String domain) {
+        def escaped = domain.replaceAll('\\.', '\\\\.')
+        return "^https?://(\\w+\\.)*${escaped}(/|\$)".toString()
+    }
+
+    // DSL method
+    // XXX: test/document this
+    protected URI uri(String uri = response['uri']) {
+        new URI(uri)
     }
 
     // DSL method
     protected void domain(Object scalarOrList) {
-        def uri = response.getVar('$URI')
+        String uri = response['uri']
         def matched = Util.scalarList(scalarOrList).any({
             return matchString(uri, domainToRegex(it))
         })
@@ -43,7 +61,7 @@ class Pattern {
     // DSL method
     protected void protocol(Object scalarOrList) {
         def matched = Util.scalarList(scalarOrList).any({
-            return response.getVar('$URI').startsWith("${it}://".toString())
+            return response['uri'].startsWith("${it}://".toString())
         })
 
         if (!matched) {
@@ -81,8 +99,8 @@ class Pattern {
         if (object instanceof Closure) {
             matched = matchClosure(object as Closure)
         } else if (object instanceof Map) {
-            (object as Map).each { name, value ->
-                match(response.getVar(name), value)
+            (object as Map<String, Object>).each { name, value ->
+                match(response[name], value)
             }
         } else if (object instanceof List) {
             def matches = (object as List)*.toString()
@@ -102,9 +120,9 @@ class Pattern {
         boolean matched // Groovy++ type inference fail (introduced in 0.4.170)
 
         if (value instanceof List) {
-            matched = (value as List).any({ matchString(key, it) })
+            matched = (value as List).any({ matchString(key?.toString(), it?.toString()) })
         } else {
-            matched = matchString(key, value)
+            matched = matchString(key?.toString(), value?.toString())
         }
 
         if (!matched) {
@@ -114,39 +132,33 @@ class Pattern {
 
     // DSL method
     private boolean matchClosure(Closure closure) {
-        log.debug('running match block')
+        logger.debug('running match block')
 
         if (closure()) {
-            log.debug('success')
+            logger.debug('success')
             return true
         } else {
-            log.debug('failure')
+            logger.debug('failure')
             return false
         }
     }
 
-    private boolean matchString(Object name, Object value) {
+    private boolean matchString(String name, String value) {
         if (name == null) {
-            log.error('invalid match: name is not defined')
+            logger.error('invalid match: name is not defined')
         } else if (value == null) {
-            log.error('invalid match: value is not defined')
+            logger.error('invalid match: value is not defined')
         } else {
-            log.debug("matching $name against $value")
+            logger.debug("matching $name against $value")
 
             if (RegexHelper.match(name, value, response.stash)) {
-                log.debug('success')
+                logger.debug('success')
                 return true // abort default failure below
             } else {
-                log.debug("failure")
+                logger.debug("failure")
             }
         }
 
         return false
-    }
-
-    // DSL method
-    protected String domainToRegex(Object domain) {
-        def escaped = domain.toString().replaceAll('\\.', '\\\\.')
-        return "^https?://(\\w+\\.)*${escaped}(/|\$)".toString()
     }
 }
