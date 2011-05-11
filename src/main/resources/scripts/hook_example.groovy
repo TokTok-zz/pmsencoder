@@ -1,5 +1,5 @@
 script {
-    profile ('Example Hook') {
+    profile ('Hook Example') {
         pattern {
             match { NOTIFY_SEND != NULL }
         }

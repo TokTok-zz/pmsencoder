@@ -1,14 +1,10 @@
 // move all of this to GitHub issues
 
-// rename PMSMonkey
+// rename PMSMonkey?
 
 // add support for audio
 
 // investigate adding support for images
-
-/* add $mencoder_feature_level (bool) to stash based on MEncoder version */
-
-// get rid of sigils and upper case names
 
 // script management: disable/enable scripts through the Swing UI (cf. GreaseMonkey)
 
@@ -18,19 +14,15 @@
       http://stackoverflow.com/questions/3302384/youtubes-hd-video-streaming-server-technology
 */
 
-// make $URI a URI rather than a String?
-
-// tests for prepend and append
+// test coverage
 
 // migrate (some) regex scrapers to Geb (or Geb + regex)
-
-// when documenting scripting, note poor man's script versioning via Github's "Switch Tags" menu
 
 // a suite of scrapers and extractors:
 
     scrape:  regex
     browse:  Geb
-    query:   Doj and/or port Zombie.js
+    query:   Doj and/or port Env.js
     xpath:   HtmlUnit?
 
 // use block syntax for scrape?
@@ -45,23 +37,12 @@
 // use a web interface because a) Swing sucks and b) headless servers. Only use Swing to enable/disable the web server
 // and set the port.
 
-// investigate using busybox-w32/ash instead of cmd.exe on Windows
-
 // Pattern: add extension matcher (use URI):
 
     extension 'm3u8'
     extension ([ 'mp4', 'm4v' ])
 
-// profile: add $EXTENSION variable
-
-// use URI for protocol parsing rather than a regex
-
-// make action methods (e.g. set, append &c.) methods on the downloader/transcoder e.g.
-
-    def mplayer = new MPlayer()
-    transcoder.downloader = mplayer
-    downloader.set('-foo')
-    transcoder.remove('-bar')
+// profile: add extension variable
 
 /*
 
@@ -80,7 +61,7 @@ document this:
         check
         end
 
-    replacing a profile with a profile with a different name
+    replacing a profile with another profile with a different name
     does not change its canonical name. this ensures other replacement profiles
     have a predictable, consistent name to refer to
 */
@@ -88,46 +69,16 @@ document this:
 /*
     TODO: determine behaviour (if any) if a replacement has a different stage
 
-    TODO: re-stage all the profiles in a script block, preserving the natural order
+    TODO: re-stage all profiles in a stage block, preserving the natural order
 
     keep a list of Script objects rather than (just) a hash of profiles?
 */
 
-// cleaner Gradle-style names (no sigils!):
-
-class MyTranscoder extends Transcoder {
-    List<String> toCommandLine() {
-
-    }
-}
-
-profile('Foo') {
-    pattern {
-        match { uri == 'http://whatever' } // TODO: make uri an actual URI rather than a string
-    }
-
-    action {
-        // default
-        transcoder = new FFmpeg() // assigns default args
-        transcoder.args = "string -or -list"
-        transcoder.output = "string -or -list" // ffmpeg only: output options
-
-        // add a downloader
-        def mplayer = new MPlayer(uri)
-        mplayer.args = [ 'string', '-or', '-list' ]
-        transcoder.downloader = mplayer
-    }
-}
-
-// No need to expose $PMS. Just use PMS.get() as normal
-
-// store the original URI: e.g. for mplayer.groovy
-
-if (originalUri.protocol == 'concat') { ... }
+// No need to expose pms? Just use PMS.get() as normal
 
 // bring back reject: e.g. for mplayer.groovy:
 
-reject $URI: '^concat:'
+reject uri: '^concat:'
 
 // add a commit method which stops all further profile matching for this request
 
@@ -146,6 +97,7 @@ Transcoders:
 
     MEncoder
     FFmpeg
+    MPlayer2
 
 Downloaders:
 
@@ -155,43 +107,7 @@ Downloaders:
 
 */
 
-    class Downloader extends Command {
-        Args args
-        List<String> toList(downloaderOutputPath) {
-            [ executable ] + args.replaceAll('DOWNLOADER_OUT', downloaderOutputPath)
-        }
-    }
-
-    class MPlayer extends Downloader {
-        MPlayer() {
-            super(mplayerPath, defaultMplayerArgs)
-        }
-    }
-
-// Ruby-style initialization blocks?
-
-profile ('Whatever') {
-    transcoder = new FFmpegTranscoder() {
-        downloader = new CustomDownloader() {
-            executable = '/path/to/mydownloader'
-            args = "-referrer $referrer -o $downloaderOut -i $uri"
-        }
-    }
-    hook = "foo bar baz"
-}
-
 // add a navix:// protocol e.g. navix://default?referrer=url_encoded_uri&url=...
-
-// need to be more precise/verbose with the names e.g. MPlayer could be used as a "null"/identity transcoder
-// (-oac copy -ovc copy):
-
-transcoder = new NullTranscoder()
-
-// need to pass in the renderer
-
-// test Pattern.scrape
-
-/// FIXME: MPlayer can't dump to stdout: http://lists.mplayerhq.hu/pipermail/mplayer-users/2006-April/059898.html
 
 // need better vlc detection
 
@@ -234,7 +150,7 @@ transcoder = new NullTranscoder()
 
     uri = jQuery { $(...).foo().bar().baz() }
 
-// complement (asynchronous) $HOOK with $BEFORE and $AFTER. $AFTER attaches a dummy process started by stopProcess()
+// complement (asynchronous) hook with before and after. after attaches a dummy process started by stopProcess()
 
     script {
         // .js files use common.js exports object to export jsPattern and jsAction
@@ -254,9 +170,7 @@ transcoder = new NullTranscoder()
 
 // pass renderer configuration in request
 
-// YouTube seeking: http://stackoverflow.com/questions/3302384/youtubes-hd-video-streaming-server-technology
-
-// PMS call player.mimeType(rendererConf) rather than player.mimeType() - wire the former to the latter in Engine.java
+// PMS: call player.mimeType(rendererConf) rather than player.mimeType() - wire the former to the latter in Engine.java
 
 // use slf4j/Logback and use the same debugLogPath as PMS
 
