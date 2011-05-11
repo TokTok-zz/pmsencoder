@@ -8,7 +8,7 @@ import net.pms.io.OutputParams
  */
 class Response implements LoggerMixin {
     Stash stash
-    List<String> matches = []
+    ArrayList<String> matches = [] // ArrayList for clone()
     Request request
     // try to work around Groovy's labyrinthine fail: setters and getters effectively don't work unless
     // written by hand
@@ -38,27 +38,17 @@ class Response implements LoggerMixin {
         this.transcoder = transcoder
     }
 
-    // convenience constructor: allow the stash to be supplied as a Map<String, Object>
-    // e.g. new Response([ uri: uri ])
-    // FIXME: do we need this?
-    /*
-    public Response(Map<String, String> map) {
-        this(new Stash(map), Matcher.createDefaultTranscoder())
-    }
-    */
-
     public Response(Request request) {
         this([ uri: request.uri ])
         this.request = request
     }
 
     public Response(Response other) {
-        def copy = new Response(new Stash(other.stash), new Transcoder(other.transcoder))
-        copy.downloader = new Downloader(other.downloader)
-        copy.hook = new Command(other.hook)
-        copy.matches = new ArrayList<String>(other.matches)
-        copy.request = new Request(other.request)
-        copy
+        this(new Stash(other.stash), Transcoder.cast(other.transcoder.clone()))
+        this.downloader = other.downloader != null ? Downloader.cast(other.downloader.clone()) : null
+        this.hook = other.hook != null ? other.hook.clone() : null
+        this.matches = other.matches.clone()
+        this.request = other.request != null ? new Request(other.request) : null
     }
 
     public boolean equals(Response other) {
@@ -80,7 +70,6 @@ class Response implements LoggerMixin {
             stash:      $stash
             transcoder: $transcoder
         }""".substring(1).stripIndent(8)
-
     }
 
     protected String getAt(String name) {
@@ -116,7 +105,7 @@ class Response implements LoggerMixin {
 
     // DSL accessor (downloader): getter
     public Downloader getDownloader() {
-        downloader
+        this.downloader
     }
 
     // DSL accessor (downloader): setter
@@ -126,17 +115,18 @@ class Response implements LoggerMixin {
 
     // DSL accessor (transcoder): getter
     public Transcoder getTranscoder() {
-        transcoder
+        this.transcoder
     }
 
     // DSL accessor (transcoder): setter
     public Transcoder setTranscoder(Object transcoder) {
+        assert transcoder != null
         this.transcoder = Util.toCommand(Transcoder.class, transcoder)
     }
 
     // DSL accessor (hook): getter
     public Command getHook() {
-        hook
+        this.hook
     }
 
     // DSL accessor (hook): setter

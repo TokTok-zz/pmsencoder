@@ -5,8 +5,8 @@ script {
         }
 
         action {
-            // FIXME: use the title
-            hook = [ NOTIFY_SEND, 'PMSEncoder', "playing ${uri}" ]
+            def name = request.dlna.getName()
+            hook = [ NOTIFY_SEND, 'PMSEncoder', "playing ${name}" ]
         }
     }
 }

@@ -1,3 +1,5 @@
+import com.chocolatey.pmsencoder.MEncoder
+
 /*
     navix://channel?url=http%3A//example.com&referer=http%3A//example.com&agent=Mozilla
 
@@ -58,7 +60,7 @@ init {
             }
 
             if (seenURL) {
-                transcoder = $mencoder
+                transcoder = new MEncoder()
                 transcoder.args.append(mencoderArgs)
             } else {
                 logger.error("invalid navix:// URI: no url parameter supplied: ${uri}")

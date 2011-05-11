@@ -1,4 +1,7 @@
 import net.pms.PMS
+import com.chocolatey.pmsencoder.Ffmpeg
+import com.chocolatey.pmsencoder.MEncoder
+import com.chocolatey.pmsencoder.MPlayer
 
 /*
     this is the default/builtin PMSEncoder script. PMSEncoder loads it from
@@ -60,13 +63,6 @@ init {
         Ffmpeg.defaultArgs = "-v 0 -y -threads ${nbcores} -i URI"
     }
 
-    if (response.downloader) {
-        downloaderCmd = response.downloader.toList(response['uri'], downloaderOutputPath)
-        transcoderCmd = response.transcoder.toList(downloaderOutputPath, transcoderOutputPath)
-    } else {
-        transcoderCmd = response.transcoder.toList(response['uri'], transcoderOutputPath)
-    }
-
     // default ffmpeg output options
     if (!Ffmpeg.defaultOutputArgs) {
         Ffmpeg.defaultOutputArgs = "-threads ${nbcores} -target ntsc-dvd TRANSCODER_OUT"
@@ -86,7 +82,7 @@ init {
             '-lavcopts', "vcodec=mpeg2video:vbitrate=4096:threads=${nbcores}:acodec=ac3:abitrate=128",
             '-ofps', '25',
             '-cache', '16384', // default cache size; default minimum percentage is 20%
-            '-vf', 'harddup'
+            '-vf', 'harddup',
             '-o', 'TRANSCODER_OUT',
             'URI'
         ]

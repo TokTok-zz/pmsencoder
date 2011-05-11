@@ -2,7 +2,7 @@
 package com.chocolatey.pmsencoder
 
 class ArgsDelegate implements LoggerMixin {
-    private List<String> args
+    List<String> args
 
     ArgsDelegate(List<String> args) {
         this.args = args

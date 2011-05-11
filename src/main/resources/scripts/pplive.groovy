@@ -1,3 +1,5 @@
+import com.chocolatey.pmsencoder.MEncoder
+
 script {
     profile ('PPLive') {
         pattern {
@@ -9,7 +11,7 @@ script {
             hook = [ PPLIVE, 'URI' ]
             uri = PPLIVE_URI ?: 'http://127.0.0.1:8888'
             // see sopcast.groovy
-            transcoder = $mencoder
+            transcoder = new MEncoder()
         }
     }
 }

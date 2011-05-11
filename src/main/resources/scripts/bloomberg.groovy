@@ -1,3 +1,5 @@
+import com.chocolatey.pmsencoder.MEncoder
+
 // videostream.Web,TV=Bloomberg TV,http://www.bloomberg.com/streams/video/LiveBTV200.asx
 
 script {
@@ -7,7 +9,7 @@ script {
         }
 
         action {
-            transcoder = $mencoder
+            transcoder = new MEncoder()
 
             // grab the .asx file and extract the first double-quoted MMS URI into uri
             scrape '"(?<uri>mms://[^"]+)"'

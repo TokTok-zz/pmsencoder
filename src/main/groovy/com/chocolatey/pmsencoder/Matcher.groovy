@@ -40,7 +40,7 @@ class Matcher implements LoggerMixin {
     }
 
     static Transcoder createDefaultTranscoder() {
-        defaultTranscoderClass.newInstance()
+        return defaultTranscoderClass.newInstance()
     }
 
     private URL getResource(String name) {
@@ -54,11 +54,18 @@ class Matcher implements LoggerMixin {
     }
 
     // test interface (chiefly via PMSEncoderTestCase)
-    Response match(Response response, boolean useDefault = true) {
+    // write this out explicitly to avoid issues with default args and delegation
+    Response match(Response response) {
+        match(response, true)
+    }
+
+    Response match(Response response, boolean useDefault) {
         try {
             if (useDefault) {
                 response.transcoder = createDefaultTranscoder()
             }
+
+            assert response.transcoder != null
 
             def uri = response['uri']
             logger.debug("matching URI: ${uri}")
@@ -150,7 +157,7 @@ class Matcher implements LoggerMixin {
     }
 
     // we could impose a constraint here that a script (file) must
-    // contain exactly one script block, but why bother?
+    // contain exactly one stage block, but why bother?
     void load(Reader reader, String filename) {
         groovy.evaluate(reader, filename)
     }
@@ -195,6 +202,10 @@ class Matcher implements LoggerMixin {
         return stash[name]
     }
 
+    String putAt(String name, Object value) {
+        return stash[name] = value?.toString()
+    }
+
     // DSL method
     String propertyMissing(String name) {
         logger.trace("retrieving global variable: ${name}")
@@ -210,35 +221,35 @@ class Matcher implements LoggerMixin {
     // DSL method
     protected void begin(Closure closure) {
         closure.delegate = new Script(this, Stage.BEGIN)
-        closure.resolveStrategy = Closure.DELEGATE_FIRST
+        closure.resolveStrategy = Closure.DELEGATE_ONLY
         closure()
     }
 
     // DSL method
     protected void init(Closure closure) {
         closure.delegate = new Script(this, Stage.INIT)
-        closure.resolveStrategy = Closure.DELEGATE_FIRST
+        closure.resolveStrategy = Closure.DELEGATE_ONLY
         closure()
     }
 
     // DSL method
     protected void script(Closure closure) {
         closure.delegate = new Script(this, Stage.SCRIPT)
-        closure.resolveStrategy = Closure.DELEGATE_FIRST
+        closure.resolveStrategy = Closure.DELEGATE_ONLY
         closure()
     }
 
     // DSL method
     protected void check(Closure closure) {
         closure.delegate = new Script(this, Stage.CHECK)
-        closure.resolveStrategy = Closure.DELEGATE_FIRST
+        closure.resolveStrategy = Closure.DELEGATE_ONLY
         closure()
     }
 
     // DSL method
     protected void end(Closure closure) {
         closure.delegate = new Script(this, Stage.END)
-        closure.resolveStrategy = Closure.DELEGATE_FIRST
+        closure.resolveStrategy = Closure.DELEGATE_ONLY
         closure()
     }
 }

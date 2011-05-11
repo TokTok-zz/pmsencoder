@@ -1,3 +1,5 @@
+import com.chocolatey.pmsencoder.MEncoder
+
 end {
     profile ('MPlayer') {
         pattern {
@@ -25,7 +27,7 @@ end {
         action {
             // don't clobber MEncoder options if they've already been set
             if (!(transcoder instanceof MEncoder))
-                transcoder = $mencoder
+                transcoder = new MEncoder()
         }
     }
 }

@@ -33,9 +33,10 @@ public class Util {
             def executable = list.remove(0)
             assert executable
             def command = klass.newInstance()
-            command.executable = executable
-            command.args = list
-            // println "XXX: converted ${list} to ${command}"
+            // FIXME: why are these (as assignments) bypassing the setters?
+            command.setExecutable(executable)
+            command.setArgs(list)
+            // println "XXX: converted list ${[ executable ] + list} to ${command}"
             command
         } else if (klass.isAssignableFrom(object.class)) {
             klass.cast(object)
@@ -46,9 +47,10 @@ public class Util {
             def executable = list.remove(0)
             assert executable
             def command = klass.newInstance()
-            command.executable = executable
-            command.args = list
-            // println "XXX: converted ${object.toString()} to ${command}"
+            // FIXME: why are these (as assignments) bypassing the setters?
+            command.setExecutable(executable)
+            command.setArgs(list)
+            // println "XXX: converted string ${object.toString()} to ${command}"
             command
         }
     }

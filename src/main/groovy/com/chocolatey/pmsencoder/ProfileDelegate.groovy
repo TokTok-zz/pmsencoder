@@ -23,8 +23,9 @@ class ProfileDelegate {
     @Lazy private WebDriver driver = new HtmlUnitDriver()
     // FIXME: sigh: transitive delegation doesn't work (groovy bug)
     // so make this public so dependent classes can manually delegate to it
-    @Delegate Matcher matcher
-    @Delegate Response response
+    // The order is important! Prefer the local delegate to the global delegate
+    @Delegate final Response response
+    @Delegate final Matcher matcher
 
     public ProfileDelegate(Matcher matcher, Response response) {
         this.matcher = matcher
@@ -49,6 +50,7 @@ class ProfileDelegate {
 
     // DSL getter
     String propertyMissing(String name) {
+        // allow a Response-scoped variable to shadow a global (Matcher-0coped) variable
         if (response.stash.containsKey(name)) {
             return response[name]
         } else {

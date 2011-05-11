@@ -269,3 +269,7 @@ transcoder = new NullTranscoder()
 
     def process = "seq 10 99".execute() | "tr 0123456789 9876543210".execute()
     print process.text
+
+// implicit imports: automatically import e.g. Ffmpeg &c. into scripts:
+// TODO: see how gradle does it
+// http://groovy.329449.n5.nabble.com/Implicit-imports-for-scripts-td355430.html

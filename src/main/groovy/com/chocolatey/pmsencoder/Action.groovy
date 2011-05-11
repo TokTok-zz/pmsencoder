@@ -2,10 +2,12 @@
 package com.chocolatey.pmsencoder
 
 class Action {
-    // FIXME: sigh: transitive delegation doesn't work (groovy bug)
-    @Delegate private final Matcher matcher
-    @Delegate private final ProfileDelegate profileDelegate
+    // FIXME: sigh: transitive delegation doesn't work (Groovy bug)
+    // The order is important! Don't delegate to Matcher's propertyMissing
+    // before the ProfileDelegate method
     @Delegate private final Response response
+    @Delegate private final ProfileDelegate profileDelegate
+    @Delegate private final Matcher matcher
 
     Action(ProfileDelegate profileDelegate) {
         this.profileDelegate = profileDelegate
@@ -13,24 +15,22 @@ class Action {
         this.response = profileDelegate.response
     }
 
-    // write these out separately to around issues with delegation and default args
-    private args(Closure closure) {
-        args(closure, transcoder.args)
+    // write these out separately to work around issues with delegation and default args
+    private List<String> args(Closure closure) {
+        args(response.transcoder.args, closure)
     }
 
-    private args(Closure closure, List<String> args) {
+    private List<String> args(List<String> args, Closure closure) {
         closure.delegate = new ArgsDelegate(args)
         closure.resolveStrategy = Closure.DELEGATE_FIRST
         closure()
         args
     }
 
-    // define a variable in the stash
+    // define a variable in the response stash
     // DSL method
     void let(Map map) {
-        map.each { key, value ->
-            response.let(key, ((value == null) ? null : value))
-        }
+        map.each { key, value -> response.let(key, value) }
     }
 
     private Map<String, String> getFormatURLMap(String video_id) {

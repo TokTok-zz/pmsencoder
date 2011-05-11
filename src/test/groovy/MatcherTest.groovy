@@ -23,7 +23,7 @@ class MatcherTest extends PMSEncoderTestCase {
             uri: 'http://www.example.com',
             // make sure nbcores is interpolated here as 3 in -threads 3
             // (this is mocked to 3 in PMSEncoderTestCase)
-            wantTranscoder: { List<String> transcoder -> transcoder.containsAll([ '-threads', '-3' ]) },
+            wantTranscoder: { List<String> transcoder -> transcoder.containsAll([ '-threads', '3' ]) },
             useDefaultTranscoder: true
         ])
     }
@@ -59,7 +59,7 @@ class MatcherTest extends PMSEncoderTestCase {
             loadDefaultScripts: true,
             uri: uri,
             script: script,
-            wantMatches: ['YouTube Metadata', 'YouTube-DL Compatible', 'YouTube' ],
+            wantMatches: [ 'YouTube Metadata', 'YouTube-DL Compatible', 'YouTube' ],
             wantStash: { Stash stash ->
                 assert stash.keySet().toList() == [
                     'uri',
@@ -89,10 +89,9 @@ class MatcherTest extends PMSEncoderTestCase {
     }
 
     void testGameTrailers() {
-        def page_id = '48298'
         def movie_id = '5162'
         def filename = 't_ufc09u_educate_int_gt'
-        def uri = "http://www.gametrailers.com/download/$page_id/${filename}.flv"
+        def uri = 'http://www.gametrailers.com/video/educate-interview-ufc-2009/48298'
         def wantURI = "http://trailers-ak.gametrailers.com/gt_vault/${movie_id}/${filename}.flv"
 
         assertMatch([
@@ -101,7 +100,6 @@ class MatcherTest extends PMSEncoderTestCase {
             wantStash: [
                 uri:                   wantURI,
                 gametrailers_movie_id: movie_id,
-                gametrailers_page_id:  page_id,
                 gametrailers_filename: filename
             ],
             wantMatches: [ 'GameTrailers' ]

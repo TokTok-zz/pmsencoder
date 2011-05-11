@@ -117,7 +117,7 @@ abstract class PMSEncoderTestCase extends GroovyTestCase {
         List<String> wantMatches = getValue(spec, 'wantMatches')
         List<String> hookList = getValue(spec, 'hook')
         List<String> downloaderList = getValue(spec, 'downloader')
-        List<String> transcoderList = getValue(spec, 'transcoder') ?: [ 'transcoder' ]
+        List<String> transcoderList = getValue(spec, 'transcoder')
         List<String> outputList = getValue(spec, 'output')
 
         def wantStash = getValue(spec, 'wantStash')
@@ -145,15 +145,17 @@ abstract class PMSEncoderTestCase extends GroovyTestCase {
         }
 
         if (hookList != null) {
-            response.hook = Util.toCommand(Command.class, hookList)
+            // FIXME: why doesn't assignment via response.hook = ... work?
+            response.setHook(hookList)
         }
 
         if (downloaderList != null) {
-            response.downloader = Util.toCommand(Downloader.class, downloaderList)
+            // FIXME: cryptic bytecode error when assigning via downloader = ...
+            response.setDownloader(downloaderList)
         }
 
         if (outputList != null) {
-            response.transcoder.output = outputList
+            response.transcoder.setOutput(outputList)
         }
 
         matcher.match(response, useDefaultTranscoder)
@@ -187,6 +189,7 @@ abstract class PMSEncoderTestCase extends GroovyTestCase {
         String uri = stash['uri'] // possibly null
 
         if (wantHook != null) {
+            assert response.hook != null
             def gotHook = response.hook.toList(uri)
             if (wantHook instanceof Closure) {
                 assert (wantHook as Closure).call(gotHook)
@@ -196,7 +199,8 @@ abstract class PMSEncoderTestCase extends GroovyTestCase {
         }
 
         if (wantDownloader != null) {
-            def gotDownloader = response.downloader.toList(uri, 'downloader_out') // any dummy string will do
+            assert response.downloader != null
+            def gotDownloader = response.downloader.toList(uri, 'DOWNLOADER_OUT') // preserve the default
             if (wantDownloader instanceof Closure) {
                 assert (wantDownloader as Closure).call(gotDownloader)
             } else {
@@ -205,7 +209,8 @@ abstract class PMSEncoderTestCase extends GroovyTestCase {
         }
 
         if (wantTranscoder != null) {
-            def gotTranscoder = response.transcoder.toList(uri, 'transcoder_out') // any dummy string will do
+            assert response.transcoder != null
+            def gotTranscoder = response.transcoder.toList(uri, 'TRANSCODER_OUT') // preserve the default
             if (wantTranscoder instanceof Closure) {
                 assert (wantTranscoder as Closure).call(gotTranscoder)
             } else {

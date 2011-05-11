@@ -27,11 +27,4 @@ class Stash extends LinkedHashMap<JString, JString> {
     public JString putAt(Object key, Object value) {
         this.put(key?.toString(), value?.toString())
     }
-
-    // watch out for infinite recursion
-    /*
-    public boolean containsKey(Object key) {
-        this.containsKey(key?.toString())
-    }
-    */
 }

@@ -4,31 +4,27 @@ package com.chocolatey.pmsencoder
 
 import groovy.transform.*
 
+@AutoClone
 class Command {
-    private static String defaultExecutable = 'command'
-    private static List<String> defaultArgs = []
-    private static List<String> defaultOutputArgs = []
-
     // XXX try to work around Groovy's setter/getter bypassing fail by writing getters/setters by hand:
     // http://groovy.329449.n5.nabble.com/When-setters-setProperty-do-or-don-t-get-called-tp510182p510182.html
     private String executable
     private List<String> args
     private List<String> output
 
+    // XXX: currently needed by Util.toCommand
+    // though we could modify that to use getDeclaredConstructor and to instantiate its commands
+    // with an explicit executable
     Command() {
-        this(getDefaultExecutable(), getDefaultArgs(), getDefaultOutputArgs())
+        this("command", [], [])
     }
 
     Command(String executable) {
-        this(executable, getDefaultArgs(), getDefaultOutputArgs())
-    }
-
-    Command(List args) {
-        this(getDefaultExecutable(), args, getDefaultOutputArgs())
+        this(executable, [], [])
     }
 
     Command(String executable, List args) {
-        this(executable, args, getDefaultOutputArgs())
+        this(executable, args, [])
     }
 
     Command(String executable, List args, List output) {
@@ -41,17 +37,20 @@ class Command {
         this.output = output*.toString()
     }
 
-    Command(Command other) {
-        this(other.executable, cloneArgs(other.args), cloneArgs(other.output))
-    }
-
-    String toString() {
-        "{ executable: $executable, args: $args, output: $output }"
-    }
-
     // XXX: squashed bug: static: needs to be available in a constructor e.g. before instance is available
     static protected List<String> cloneArgs(List<String> args) {
         new ArrayList<String>(args)
+    }
+
+    public boolean equals(Command other) {
+        other.class == this.class &&
+        other.executable == this.executable &&
+        other.args == this.args &&
+        other.output == this.output
+    }
+
+    public String toString() {
+        "{ executable: $executable, args: $args, output: $output }"
     }
 
     public String getExecutable() {
@@ -76,30 +75,6 @@ class Command {
 
     public List<String> setOutput(Object stringOrList) {
         this.output = Util.toStringList(stringOrList)
-    }
-
-    public static String getDefaultExecutable() {
-        this.defaultExecutable
-    }
-
-    public static setDefaultExecutable(String executable) {
-        this.defaultExecutable = executable
-    }
-
-    public static List<String> getDefaultArgs() {
-        cloneArgs(this.defaultArgs)
-    }
-
-    public static List<String> setDefaultArgs(Object stringOrList) {
-        this.defaultArgs = Util.toStringList(stringOrList)
-    }
-
-    public static List<String> getDefaultOutputArgs() {
-        cloneArgs(this.defaultOutputArgs)
-    }
-
-    public static List<String> setDefaultOutputArgs(Object stringOrList) {
-        this.defaultOutputArgs = Util.toStringList(stringOrList)
     }
 
     private List<String> expandMacros(List<String> list, String uri) {
@@ -135,15 +110,84 @@ class Transcoder extends Command {
 
 @InheritConstructors
 class MPlayer extends Downloader {
-    private static String defaultExecutable = Platform.MPLAYER_PATH
+    static String defaultExecutable = Platform.MPLAYER_PATH
+    private static List<String> defaultArgs = []
+
+    MPlayer() {
+        this(defaultExecutable, getDefaultArgs(), [])
+    }
+
+    MPlayer(List args) {
+        this(defaultExecutable, args, [])
+    }
+
+    public static List<String> getDefaultArgs() {
+        cloneArgs(this.defaultArgs)
+    }
+
+    public static List<String> setDefaultArgs(Object stringOrList) {
+        this.defaultArgs = Util.toStringList(stringOrList)
+    }
 }
 
 @InheritConstructors
-class MEncoder extends Command {
-    private static String defaultExecutable = Platform.MENCODER_PATH
+class MEncoder extends Transcoder {
+    static String defaultExecutable = Platform.MENCODER_PATH
+    private static List<String> defaultArgs = []
+    private static List<String> defaultOutputArgs = []
+
+    MEncoder() {
+        this(defaultExecutable, getDefaultArgs(), getDefaultOutputArgs())
+    }
+
+    MEncoder(List args) {
+        this(defaultExecutable, args, getDefaultOutputArgs())
+    }
+
+    public static List<String> getDefaultArgs() {
+        cloneArgs(this.defaultArgs)
+    }
+
+    public static List<String> setDefaultArgs(Object stringOrList) {
+        this.defaultArgs = Util.toStringList(stringOrList)
+    }
+
+    public static List<String> getDefaultOutputArgs() {
+        cloneArgs(this.defaultOutputArgs)
+    }
+
+    public static List<String> setDefaultOutputArgs(Object stringOrList) {
+        this.defaultOutputArgs = Util.toStringList(stringOrList)
+    }
 }
 
 @InheritConstructors
-class Ffmpeg extends Command {
-    private static String defaultExecutable = Platform.FFMPEG_PATH
+class Ffmpeg extends Transcoder {
+    static String defaultExecutable = Platform.FFMPEG_PATH
+    private static List<String> defaultArgs = []
+    private static List<String> defaultOutputArgs = []
+
+    Ffmpeg() {
+        this(defaultExecutable, getDefaultArgs(), getDefaultOutputArgs())
+    }
+
+    Ffmpeg(List args) {
+        this(defaultExecutable, args, getDefaultOutputArgs())
+    }
+
+    public static List<String> getDefaultArgs() {
+        cloneArgs(this.defaultArgs)
+    }
+
+    public static List<String> setDefaultArgs(Object stringOrList) {
+        this.defaultArgs = Util.toStringList(stringOrList)
+    }
+
+    public static List<String> getDefaultOutputArgs() {
+        cloneArgs(this.defaultOutputArgs)
+    }
+
+    public static List<String> setDefaultOutputArgs(Object stringOrList) {
+        this.defaultOutputArgs = Util.toStringList(stringOrList)
+    }
 }

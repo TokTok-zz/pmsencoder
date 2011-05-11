@@ -3,9 +3,11 @@ package com.chocolatey.pmsencoder
 
 class Pattern {
     // FIXME: sigh: transitive delegation doesn't work (groovy bug)
+    // The order is important! Don't delegate to Matcher's propertyMissing
+    // before the ProfileDelegate method
+    @Delegate private final Response response
     @Delegate private final ProfileDelegate profileDelegate
     @Delegate private final Matcher matcher
-    @Delegate private final Response response
     private final Stash stash
     protected static final MatchFailureException STOP_MATCHING = new MatchFailureException()
 

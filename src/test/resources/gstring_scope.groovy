@@ -13,7 +13,7 @@ script {
 
         action {
             def var4 = "action$nbcores"
-            transcoder = [ var1, var2, var3, var4 ]
+            transcoder = [ 'transcoder', var1, var2, var3, var4 ]
         }
     }
 }

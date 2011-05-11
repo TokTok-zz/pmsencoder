@@ -40,7 +40,7 @@ class Profile implements LoggerMixin {
 
             try {
                 patternBlock.delegate = pattern
-                patternBlock.resolveStrategy = Closure.DELEGATE_FIRST
+                patternBlock.resolveStrategy = Closure.DELEGATE_ONLY
                 patternBlock()
             } catch (MatchFailureException e) {
                 logger.trace('pattern block: caught match exception')
@@ -66,7 +66,7 @@ class Profile implements LoggerMixin {
             def action = new Action(profileDelegate)
             logger.trace("running action block for: $name")
             actionBlock.delegate = action
-            actionBlock.resolveStrategy = Closure.DELEGATE_FIRST
+            actionBlock.resolveStrategy = Closure.DELEGATE_ONLY
             actionBlock()
             logger.trace("finished action block for: $name")
             return true

@@ -6,7 +6,7 @@ class ProfileTest extends PMSEncoderTestCase {
         assertMatch([
             script:               '/default_ffmpeg_args.groovy',
             uri:                  'http://www.example.com',
-            wantTranscoder:       [ Platform.FFMPEG_PATH, '-default', '-ffmpeg', '-args' ],
+            wantTranscoder:       [ Platform.FFMPEG_PATH, '-default', '-ffmpeg', '-args' ] + Ffmpeg.getDefaultOutputArgs(),
             useDefaultTranscoder: true
         ])
     }

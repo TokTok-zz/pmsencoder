@@ -1,3 +1,5 @@
+import com.chocolatey.pmsencoder.MEncoder
+
 // this needs to precede 'YouTube Metadata' i.e. it needs to be in a BEGIN script
 
 script {
@@ -29,7 +31,7 @@ script {
 
         action {
             // FIXME: temporary while MPlayer doesn't work as a downloader on Windows
-            transcoder = $mencoder
+            transcoder = new MEncoder()
             args { set '-user-agent': IPAD_USER_AGENT }
         }
     }

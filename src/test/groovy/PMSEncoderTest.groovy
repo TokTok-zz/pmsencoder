@@ -13,8 +13,8 @@ class PMSEncoderTest extends PMSEncoderTestCase {
         assert !response.stash.is(newResponse.stash)
         assert !response.transcoder.is(newResponse.transcoder)
         assert !response.is(newResponse)
-        assert newResponse.stash == new Stash([ foo: 'bar' ])
-        assert newResponse.transcoder == Util.toCommand(TestTranscoder.class, [ 'baz', 'quux' ])
+        assert newResponse.stash == response.stash
+        assert newResponse.transcoder == response.transcoder
     }
 
     void testStashCopy() {
