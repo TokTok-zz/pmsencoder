@@ -1,4 +1,4 @@
-2.0.0-RC1 TBC
+1.6.0 TBC
     - Breaking changes:
         - renamed log -> logger
     - look in platform subdirectory for standalone executables (e.g. rtmpdump) if paths aren't defined in PMS.conf

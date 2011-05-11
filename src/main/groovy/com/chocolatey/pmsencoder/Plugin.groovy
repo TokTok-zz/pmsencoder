@@ -25,7 +25,7 @@ import no.geosoft.cc.io.FileMonitor
 import org.apache.log4j.xml.DOMConfigurator
 
 class Plugin implements ExternalListener, FileListener {
-    private static final String VERSION = '2.0.0-RC1'
+    private static final String VERSION = '1.6.0'
     private static final String DEFAULT_SCRIPT_DIRECTORY = 'pmsencoder'
     private static final String LOG_CONFIG = 'pmsencoder.logger.config'
     private static final String SCRIPT_DIRECTORY = 'pmsencoder.script.directory'
