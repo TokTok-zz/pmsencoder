@@ -13,7 +13,7 @@ script {
             transcoder = new MEncoder()
             // -referrer requires a recent-ish MEncoder (>= June 2010)
             args { set '-referrer': uri }
-            uri = 'http://www.eurogamer.net/' + browse { $('a.download').@href }
+            uri = 'http://www.eurogamer.net/' + jQuery('$("a.download").attr("href")')
         }
     }
 }

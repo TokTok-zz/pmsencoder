@@ -1,9 +1,6 @@
 @Typed
 package com.chocolatey.pmsencoder
 
-import geb.*
-import org.openqa.selenium.WebDriver
-import org.openqa.selenium.htmlunit.HtmlUnitDriver
 import org.apache.http.NameValuePair
 
 /*
@@ -20,7 +17,7 @@ import org.apache.http.NameValuePair
 
 class ProfileDelegate {
     private final Map<String, String> cache = [:] // only needed/used by this.scrape()
-    @Lazy private WebDriver driver = new HtmlUnitDriver()
+    @Lazy private Browser browser = new Browser()
     // FIXME: sigh: transitive delegation doesn't work (groovy bug)
     // so make this public so dependent classes can manually delegate to it
     // The order is important! Prefer the local delegate to the global delegate
@@ -63,20 +60,19 @@ class ProfileDelegate {
         response.let(name, value?.toString())
     }
 
-    // DSL method
-    public Object browse(Map options = [:], Closure closure) {
-        String uri = (options['uri'] == null) ? response['uri'] : options['uri']
-        driver.get(uri)
-        Browser.drive(driver, closure)
-    }
-
     // DSL method - can be called from a pattern or an action.
     // actions inherit this method, whereas patterns add the
     // short-circuiting behaviour and delegate to this via super.scrape(...)
     // XXX: we need to declare these two signatures explicitly to work around
     // issues with @Delegate and default parameters
+
+    // curry
+    public Function1<Object, Boolean> scrape(Map options) {
+        return { Object regex -> scrape(options, regex) }
+    }
+
     public boolean scrape(Object regex) {
-        scrape(regex, [:])
+        return scrape([ uri: response['uri'] ], regex)
     }
 
     /*
@@ -84,7 +80,8 @@ class ProfileDelegate {
         2) perform a regex match against the document
         3) update the stash with any named captures
     */
-    public boolean scrape(Object regex, Map options) {
+
+    public boolean scrape(Map options, Object regex) {
         String uri = (options['uri'] == null) ? response['uri'] : options['uri']
         String document = (options['source'] == null) ? cache[uri] : options['source']
         boolean decode = options['decode'] == null ? false : options['decode']
@@ -119,5 +116,29 @@ class ProfileDelegate {
         }
 
         return scraped
+    }
+
+    // curry
+    Function1<Object, String> jQuery(Map options) {
+        return { Object query -> jQuery(String.class, options, query) }
+    }
+
+    String jQuery(Object query) {
+        jQuery(String.class, [ uri: response['uri'] ], query)
+    }
+
+    public <T> T jQuery(Class<T> klass, Object query) {
+        return jQuery(klass, [ uri: response['uri'] ], query)
+    }
+
+    public <T> Function1<Object, T> jQuery(Class<T> klass, Map options) {
+        return { Object query -> jQuery(klass, options, query) }
+    }
+
+    public <T> T jQuery(Class<T> klass, Map options, Object query) {
+        String uri = (options['uri'] == null) ? response['uri'] : options['uri']
+        // String document = (options['source'] == null) ? cache[uri] : options['source']
+        browser.navigate(uri)
+        return browser.eval(klass, query.toString())
     }
 }

@@ -80,11 +80,11 @@ class Pattern {
     // XXX: we need to declare these signatures separately to work around issues
     // with @Delegate and default parameters
     protected boolean scrape(Object regex) {
-        scrape(regex, [:])
+        scrape([:], regex)
     }
 
-    protected boolean scrape(Object regex, Map options) {
-        if (profileDelegate.scrape(regex, options)) {
+    protected boolean scrape(Map options, Object regex) {
+        if (profileDelegate.scrape(options, regex)) {
             return true
         } else {
             throw STOP_MATCHING

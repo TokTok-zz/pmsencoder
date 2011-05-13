@@ -6,7 +6,7 @@ script {
 
         action {
             // scraping from a string
-            scrape '^(?<first>\\w+)\\s+(?<second>\\w+$)', [ source: 'scrape string' ]
+            scrape (source: 'scrape string')('^(?<first>\\w+)\\s+(?<second>\\w+$)')
         }
     }
 }

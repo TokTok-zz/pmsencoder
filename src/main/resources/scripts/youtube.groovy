@@ -1,4 +1,5 @@
 // videofeed.Web,YouTube=http://gdata.youtube.com/feeds/base/users/freddiew/uploads?alt=rss&v=2&orderby=published
+
 check {
     // extract metadata about the video for other profiles
     profile ('YouTube Metadata') {
@@ -13,13 +14,12 @@ check {
             def youtube_scrape_uri = "${uri}&has_verified=1"
 
             // extract the resource's sekrit identifier (t) from the HTML
-            scrape '\\bflashvars\\s*=\\s*["\'][^"\']*?\\bt=(?<youtube_t>[^&"\']+)', [ uri: youtube_scrape_uri ]
+            scrape (uri: youtube_scrape_uri)('\\bflashvars\\s*=\\s*["\'][^"\']*?\\bt=(?<youtube_t>[^&"\']+)')
 
             // extract the title and uploader ("creator") so that scripts can use them
-            youtube_title = browse (uri: youtube_scrape_uri) { $('meta', name: 'title').@content }
-            youtube_uploader = browse (uri: youtube_scrape_uri) {
-                $('span', 'data-subscription-type': 'user').'@data-subscription-username'
-            }
+            def $jQuery = jQuery(uri: youtube_scrape_uri) // curry
+            youtube_title = $jQuery('$("meta[name=title]").attr("content")')
+            youtube_uploader = $jQuery('$("span[data-subscription-type=user]").attr("data-subscription-username")')
         }
     }
 

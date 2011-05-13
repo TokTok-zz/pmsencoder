@@ -13,7 +13,7 @@ script {
                 uri = "http://trailers-ak.gametrailers.com/gt_vault/${gametrailers_movie_id}/${gametrailers_filename}.flv"
             } else if (scrape('\\bvar\\s+mov_id\\s*=\\s*(?<gametrailers_mov_id>\\d+)')) {
                 def scrapeURI = "http://www.gametrailers.com/neo/?page=xml.mediaplayer.Mediagen&movieId=${gametrailers_mov_id}&hd=1"
-                scrape '<src>\\s*(?<uri>\\S+)\\s*</src>', [ uri: scrapeURI ]
+                scrape(uri: scrapeURI)('<src>\\s*(?<uri>\\S+)\\s*</src>')
             }
         }
     }
