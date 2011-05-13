@@ -10,7 +10,7 @@ scripts/gametrailers.groovy
 scripts/get_flash_videos.groovy
 scripts/giantbomb.groovy
 scripts/hls_player.groovy
-scripts/hook_test.groovy
+scripts/hook_example.groovy
 scripts/icanhascheezburger.groovy
 scripts/movshare.groovy
 scripts/mplayer.groovy

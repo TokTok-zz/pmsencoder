@@ -115,7 +115,7 @@ Downloaders:
 // i.e. enter 1) name/path 2) the command line 3) optional thumbnail URI and click to generate the WEB.conf
 // line
 
-// Env.js + jQuery + Rhino:
+// Env.js + jQuery + Rhino: http://snipplr.com/view/38607/rhino-envjs-testing-example/
 
 /*
     var stage = new Stage('script');
@@ -147,6 +147,7 @@ Downloaders:
         uri = $(...)
 
 // propertyMissing + methodMissing?
+// http://groovy.dzone.com/articles/groovy-action-statically-typed
 
     uri = jQuery { $(...).foo().bar().baz() }
 
