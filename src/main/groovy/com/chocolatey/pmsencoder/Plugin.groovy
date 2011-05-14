@@ -213,7 +213,7 @@ class Plugin implements ExternalListener, FileListener {
 
     @Override
     public String name() {
-        return 'PMSEncoder plugin for PS3 Media Server'
+        'PMSEncoder'
     }
 
     @Override
