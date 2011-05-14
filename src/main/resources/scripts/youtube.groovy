@@ -16,9 +16,9 @@ check {
             scrape (uri: youtube_scrape_uri)('\\bflashvars\\s*=\\s*["\'][^"\']*?\\bt=(?<youtube_t>[^&"\']+)')
 
             // extract the title and uploader ("creator") so that scripts can use them
-            def $jQuery = jQuery(uri: youtube_scrape_uri) // curry
-            youtube_title = $jQuery('$("meta[name=title]").attr("content")')
-            youtube_uploader = $jQuery('$("span[data-subscription-type=user]").attr("data-subscription-username")')
+            def $j = $(uri: youtube_scrape_uri) // curry
+            youtube_title = $j('meta[name=title]').attr('content')
+            youtube_uploader = $j('span[data-subscription-type=user]').attr('data-subscription-username')
         }
     }
 

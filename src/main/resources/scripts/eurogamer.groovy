@@ -12,7 +12,7 @@ script {
             downloader = new MPlayer()
             // -referrer requires a recent-ish MPlayer (>= June 2010)
             args (downloader.args) { set '-referrer': uri }
-            uri = 'http://www.eurogamer.net/' + jQuery('$("a.download").attr("href")')
+            uri = 'http://www.eurogamer.net/' + $('a.download').attr('href')
         }
     }
 }

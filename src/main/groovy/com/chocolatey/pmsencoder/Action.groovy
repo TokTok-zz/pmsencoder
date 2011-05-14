@@ -27,12 +27,6 @@ class Action {
         args
     }
 
-    // FIXME: no idea why I have to do this (ProfileDelegate exposes a public getter),
-    // but browser is null in gameswelt without it
-    public Browser getBrowser() {
-        profileDelegate.getBrowser()
-    }
-
     // define a variable in the response stash
     // DSL method
     void let(Map map) {

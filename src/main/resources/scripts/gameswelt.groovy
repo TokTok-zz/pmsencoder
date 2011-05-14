@@ -12,18 +12,14 @@ script {
         // HD: http://video.gameswelt.de/public/mp4/201105/40353_geforcegtx560launchtrailer_1_HD.mp4
         // SD: http://video.gameswelt.de/public/mp4/201105/40353_geforcegtx560launchtrailer_1.mp4
         action {
-            def getFields = { string -> Util.extract(string, "\\('?(\\d+)'?\\s*,\\s*'(\\d+)\\/([^']+)'") }
-            def hdUri = jQuery('$("span.videoHD > a").attr("href")')
-            def id1, id2, filename
+            def hdUri = $('span.videoHD > a').attr('href')
 
-            if (hdUri) {
-                browser.navigate(hdUri)
-                (id1, id2, filename) = getFields(jQuery('$("a.downloadLink").attr("onclick")'))
-            } else {
-                (id1, id2, filename) = getFields(jQuery('$("span.videoDownload").attr("href")'))
+            if (hdUri) { // TODO: handle SD if no HD vid is available
+                use (Util) { // for String.match()
+                    def path = $(uri: hdUri)('div#boxRight a').first().attr('onmouseover').match("'(\\d+\\/\\d+[^']+)'")[1]
+                    uri = "http://video.gameswelt.de/public/mp4/${path}"
+                }
             }
-
-            uri = sprintf('http://video.gameswelt.de/public/mp4/%s/%s_%s', id2, id1, filename)
         }
     }
 }

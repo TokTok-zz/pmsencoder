@@ -3,6 +3,10 @@ package com.chocolatey.pmsencoder
 
 import org.apache.http.NameValuePair
 
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
+import org.jsoup.select.Elements
+
 /*
 
     XXX squashed bug: note that delegated methods (i.e. methods exposed via the @Delegate
@@ -16,9 +20,8 @@ import org.apache.http.NameValuePair
 */
 
 class ProfileDelegate {
-    private final Map<String, String> cache = [:] // only needed/used by this.scrape()
-    // handle laziness manually due to flaky interaction with dynamic script
-    private static Browser $browser // lazy singleton
+    private final Map<String, String> httpCache = [:]
+    private final Map<String, Document> jsoupCache = [:]
     // FIXME: sigh: transitive delegation doesn't work (groovy bug)
     // so make this public so dependent classes can manually delegate to it
     // The order is important! Prefer the local delegate to the global delegate
@@ -44,15 +47,6 @@ class ProfileDelegate {
     // protocol: getter
     public String getProtocol() {
         return getProtocol(response['uri'])
-    }
-
-    // browser: getter (singleton)
-    public Browser getBrowser() {
-        if ($browser != null) {
-            $browser
-        } else {
-            $browser = new Browser()
-        }
     }
 
     // DSL getter
@@ -93,7 +87,7 @@ class ProfileDelegate {
 
     public boolean scrape(Map options, Object regex) {
         String uri = (options['uri'] == null) ? response['uri'] : options['uri']
-        String document = (options['source'] == null) ? cache[uri] : options['source']
+        String document = (options['source'] == null) ? httpCache[uri] : options['source']
         boolean decode = options['decode'] == null ? false : options['decode']
 
         def newStash = new Stash()
@@ -102,7 +96,7 @@ class ProfileDelegate {
         if (document == null) {
             logger.debug("getting $uri")
             assert http != null
-            document = cache[uri] = http.get(uri)
+            document = httpCache[uri] = http.get(uri)
         }
 
         if (document == null) {
@@ -128,27 +122,53 @@ class ProfileDelegate {
         return scraped
     }
 
-    // curry
-    Function1<Object, String> jQuery(Map options) {
-        return { Object query -> jQuery(String.class, options, query) }
+    // jsoup.foo() (i.e. property) returns a document preloaded with the current URI
+    // jsoup(options) returns a document loaded with the specified URI or string.
+    // for greater control, users can import Jsoup and manage it themselves
+
+    // DSL method: curry
+    public Function1<Object, Elements> $(Map options) {
+        def jsoup
+
+        if (options['source']) {
+            jsoup = getJsoupForString(options['source'].toString())
+        } else if (options['uri']) {
+            jsoup = getJsoupForUri(options['uri'].toString())
+        } else {
+            jsoup = getJsoupForUri(response['uri'].toString())
+        }
+
+        return { Object query -> jsoup.select(query.toString()) }
     }
 
-    String jQuery(Object query) {
-        jQuery(String.class, [ uri: response['uri'] ], query)
+    // DSL method
+    public Document jsoup(Map options) {
+        def jsoup
+
+        if (options['source']) {
+            jsoup = getJsoupForString(options['source'].toString())
+        } else if (options['uri']) {
+            jsoup = getJsoupForUri(options['uri'].toString())
+        } else {
+            jsoup = getJsoupForUri(response['uri'].toString())
+        }
+
+        return jsoup
     }
 
-    public <T> T jQuery(Class<T> klass, Object query) {
-        return jQuery(klass, [ uri: response['uri'] ], query)
+    // DSL method
+    public Elements $(Object query) {
+        getJsoupForUri(response['uri']).select(query.toString())
     }
 
-    public <T> Function1<Object, T> jQuery(Class<T> klass, Map options) {
-        return { Object query -> jQuery(klass, options, query) }
+    private Document getJsoupForUri(Object obj) {
+        def uri = obj.toString()
+        def cached = httpCache[uri] ?: (httpCache[uri] = http.get(uri))
+        return getJsoupForString(cached)
     }
 
-    public <T> T jQuery(Class<T> klass, Map options, Object query) {
-        String uri = (options['uri'] == null) ? response['uri'] : options['uri']
-        // String document = (options['source'] == null) ? cache[uri] : options['source']
-        getBrowser().navigate(uri)
-        return getBrowser().eval(klass, query.toString())
+    private Document getJsoupForString(Object obj) {
+        def string = obj.toString()
+        return jsoupCache[string] ?: (jsoupCache[string] = Jsoup.parse(string))
     }
 }
