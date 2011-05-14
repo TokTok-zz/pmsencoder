@@ -16,20 +16,6 @@
 
 // test coverage
 
-// migrate (some) regex scrapers to Geb (or Geb + regex)
-
-// a suite of scrapers and extractors:
-
-    scrape:  regex
-    browse:  Geb
-    query:   Doj and/or port Env.js
-    xpath:   HtmlUnit?
-
-// use block syntax for scrape?
-
-    scrape { 'foo/bar(?<baz>\\w+)' }
-    scrape (uri: uri) { 'foo/bar(?<baz>\\w+)' }
-
 // script metadata?
 
     script (namespace: 'http://www.example.com', author: 'chocolateboy', version: 1.04) { ... }
@@ -44,8 +30,11 @@
 
 // profile: add extension variable
 
-/*
+    pattern {
+        match { extension == 'asx' }
+    }
 
+/*
 document this:
 
     script loading order:
@@ -97,6 +86,9 @@ Transcoders:
 
     MEncoder
     FFmpeg
+
+Future?
+
     MPlayer2
 
 Downloaders:
@@ -115,59 +107,7 @@ Downloaders:
 // i.e. enter 1) name/path 2) the command line 3) optional thumbnail URI and click to generate the WEB.conf
 // line
 
-// Env.js + jQuery + Rhino: http://snipplr.com/view/38607/rhino-envjs-testing-example/
-
-/*
-    var stage = new Stage('script');
-    var profile = new Profile('Foo', [ 'extends': 'Bar', 'replaces': 'Baz' ]);
-    stage.addProfile(profile);
-
-    profile.pattern = function(context, uri) {
-        if (uri.match(/^http:\/\/www.whatever.com/) {
-            return true;
-        }
-        return false
-    };
-
-    profile.action = ...
-*/
-
-// spock-esque?
-
-    pattern:
-
-        if (uri.whatever()) {
-            return true;
-        } else {
-            return false;
-        }
-
-    action:
-
-        uri = $(...)
-
-// propertyMissing + methodMissing?
-// http://groovy.dzone.com/articles/groovy-action-statically-typed
-
-    uri = jQuery { $(...).foo().bar().baz() }
-
 // complement (asynchronous) hook with before and after. after attaches a dummy process started by stopProcess()
-
-    script {
-        // .js files use common.js exports object to export jsPattern and jsAction
-        // e.g. exports['jsPattern'] = function(uri) { ... };
-        // methods looked up in map via methodMissing?
-        jsLoadResource('jspattern.js')
-        jsLoadFile('jsaction.js')
-
-        pattern {
-            match { jsPattern(uri) }
-        }
-
-        action {
-            transcoder = jsAction(uri)
-        }
-    }
 
 // pass renderer configuration in request
 
