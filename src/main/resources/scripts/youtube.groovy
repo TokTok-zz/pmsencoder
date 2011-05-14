@@ -10,7 +10,6 @@ check {
 
         action {
             // fix the URI to bypass age verification
-            // make sure URI is sigilized to prevent clashes with the class
             def youtube_scrape_uri = "${uri}&has_verified=1"
 
             // extract the resource's sekrit identifier (t) from the HTML
@@ -57,16 +56,18 @@ check {
     profile ('YouTube-DL') {
         pattern {
             match 'YouTube-DL Compatible'
-            match { PYTHON && YOUTUBE_DL }
+            match { YOUTUBE_DL }
         }
 
         action {
             youtube_dl_enabled = true
+            // allow youtube-dl.exe to be used on Windows (or chmod +x youtube-dl on *nix)
+            def python = PYTHON ? "$PYTHON " : ''
 
             if (YOUTUBE_DL_MAX_QUALITY) {
-                downloader = "${PYTHON} ${YOUTUBE_DL} --max-quality ${YOUTUBE_DL_MAX_QUALITY} --quiet -o DOWNLOADER_OUT URI"
+                downloader = "${python}${YOUTUBE_DL} --max-quality ${YOUTUBE_DL_MAX_QUALITY} --quiet -o DOWNLOADER_OUT URI"
             } else {
-                downloader = "${PYTHON} ${YOUTUBE_DL} --quiet -o DOWNLOADER_OUT URI"
+                downloader = "${python}${YOUTUBE_DL} --quiet -o DOWNLOADER_OUT URI"
             }
         }
     }
