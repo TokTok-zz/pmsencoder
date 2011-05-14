@@ -65,9 +65,9 @@ check {
             def python = PYTHON ? "$PYTHON " : ''
 
             if (YOUTUBE_DL_MAX_QUALITY) {
-                downloader = "${python}${YOUTUBE_DL} --max-quality ${YOUTUBE_DL_MAX_QUALITY} --quiet -o DOWNLOADER_OUT URI"
+                downloader = "${python}${YOUTUBE_DL} --max-quality ${YOUTUBE_DL_MAX_QUALITY} -o DOWNLOADER_OUT URI"
             } else {
-                downloader = "${python}${YOUTUBE_DL} --quiet -o DOWNLOADER_OUT URI"
+                downloader = "${python}${YOUTUBE_DL} -o DOWNLOADER_OUT URI"
             }
         }
     }

@@ -78,6 +78,11 @@ abstract class PMSEncoderTestCase extends GroovyTestCase {
         }
     }
 
+    // allow ProfileDelegate methods to be tested without having to do so indirectly through scripts
+    public ProfileDelegate getProfileDelegate() {
+        return new ProfileDelegate(matcher, new Response(new TestTranscoder()))
+    }
+
     protected void assertMatch(Map<String, Object> spec) {
         if (spec['loadDefaultScripts']) {
             matcher.loadDefaultScripts()

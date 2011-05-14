@@ -1,4 +1,4 @@
-import com.chocolatey.pmsencoder.MEncoder
+import com.chocolatey.pmsencoder.MPlayer
 
 script {
     profile ('Apple Trailers') {
@@ -7,10 +7,9 @@ script {
         }
 
         action {
-            // FIXME: temporary while MPlayer doesn't work as a downloader on Windows
-            transcoder = new MEncoder()
+            downloader = new MPlayer()
 
-            args {
+            args (downloader.args) {
                 set '-user-agent': 'QuickTime/7.6.2'
             }
         }

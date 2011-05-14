@@ -8,7 +8,7 @@ script {
         }
 
         action {
-            downloader = "${PERL} ${GET_FLASH_VIDEOS} --quality high --quiet --yes --filename DOWNLOADER_OUT URI"
+            downloader = "${PERL} ${GET_FLASH_VIDEOS} --quality high --yes --filename DOWNLOADER_OUT URI"
         }
     }
 }

@@ -1,6 +1,6 @@
-import com.chocolatey.pmsencoder.MEncoder
+import com.chocolatey.pmsencoder.MPlayer
 
-// this needs to precede 'YouTube Metadata' i.e. it needs to be in a BEGIN script
+// this needs to precede 'YouTube Metadata' (check), hence: script (see, for now, TODO.groovy for stages)
 
 script {
     def ICHC = 'I Can Has Cheezburger'
@@ -30,9 +30,8 @@ script {
         }
 
         action {
-            // FIXME: temporary while MPlayer doesn't work as a downloader on Windows
-            transcoder = new MEncoder()
-            args { set '-user-agent': IPAD_USER_AGENT }
+            downloader = new MPlayer()
+            args (downloader.args) { set '-user-agent': IPAD_USER_AGENT }
         }
     }
 }

@@ -8,13 +8,17 @@ import org.mozilla.javascript.ScriptableObject
 import org.mozilla.javascript.tools.shell.Global
 
 public class Browser {
-    private final String ENV_CONF = 'env.conf.js'
-    private final String ENVJS = 'env.rhino.js'
-    private final String JQUERY = 'jquery.min.js'
+    private static final String ENV_CONF = 'env.conf.js'
+    private static final String ENVJS = 'env.rhino.js'
+    private static final String JQUERY = 'jquery.min.js'
     private ScriptableObject sharedScope
     private String currentLocation
     private String location
 
+    // previously this was created once per response, but it takes too long (17 seconds!),
+    // so now we create it only once. XXX: it still takes ~4 seconds for each JS expression...
+    // XXX watch out for issues with side-effects/persistent contamination of the top-level
+    // (shouldn't happen with typical jQuery usage)
     public Browser() {
         def cx = ContextFactory.getGlobal().enterContext()
 
@@ -73,6 +77,7 @@ public class Browser {
             def scope = cx.newObject(sharedScope)
             scope.setPrototype(sharedScope)
             scope.setParentScope(null)
+            // don't reload if the URI's the same
             // XXX: there's an unapplied patch for this (in Env.js) on GitHub
             if (location) {
                 cx.evaluateString(scope, "window.location = '${location}'", "<eval>", 1, null)

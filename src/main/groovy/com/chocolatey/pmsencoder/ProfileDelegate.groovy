@@ -17,14 +17,15 @@ import org.apache.http.NameValuePair
 
 class ProfileDelegate {
     private final Map<String, String> cache = [:] // only needed/used by this.scrape()
-    @Lazy private Browser browser = new Browser()
+    // handle laziness manually due to flaky interaction with dynamic script
+    private static Browser $browser // lazy singleton
     // FIXME: sigh: transitive delegation doesn't work (groovy bug)
     // so make this public so dependent classes can manually delegate to it
     // The order is important! Prefer the local delegate to the global delegate
     @Delegate final Response response
     @Delegate final Matcher matcher
 
-    public ProfileDelegate(Matcher matcher, Response response) {
+    protected ProfileDelegate(Matcher matcher, Response response) {
         this.matcher = matcher
         this.response = response
     }
@@ -43,6 +44,15 @@ class ProfileDelegate {
     // protocol: getter
     public String getProtocol() {
         return getProtocol(response['uri'])
+    }
+
+    // browser: getter (singleton)
+    public Browser getBrowser() {
+        if ($browser != null) {
+            $browser
+        } else {
+            $browser = new Browser()
+        }
     }
 
     // DSL getter
@@ -138,7 +148,7 @@ class ProfileDelegate {
     public <T> T jQuery(Class<T> klass, Map options, Object query) {
         String uri = (options['uri'] == null) ? response['uri'] : options['uri']
         // String document = (options['source'] == null) ? cache[uri] : options['source']
-        browser.navigate(uri)
-        return browser.eval(klass, query.toString())
+        getBrowser().navigate(uri)
+        return getBrowser().eval(klass, query.toString())
     }
 }

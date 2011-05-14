@@ -42,9 +42,7 @@ init {
             }
 
             if (seenURL) {
-                // rtmpdump doesn't log to stdout, so no need to use -q on Windows
-                downloader = "${RTMPDUMP} -o DOWNLOADER_OUT -r URI"
-                downloader += rtmpdumpArgs
+                downloader = [ RTMPDUMP, '-o', 'DOWNLOADER_OUT', '-r', 'URI' ] + rtmpdumpArgs
             } else {
                 logger.error("invalid rtmpdump:// URI: no -r or --rtmp parameter supplied: ${uri}")
             }

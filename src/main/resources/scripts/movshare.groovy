@@ -8,7 +8,7 @@ script {
         // otherwise wait for the delay
         action {
             if (VLC) {
-                downloader = "${VLC} -q -I dummy --demux dump --demuxdump-file DOWNLOADER_OUT URI"
+                downloader = "${VLC} -I dummy --demux dump --demuxdump-file DOWNLOADER_OUT URI"
             } else {
                 request.params.waitbeforestart = 20000L
             }

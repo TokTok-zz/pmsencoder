@@ -1,9 +1,9 @@
-import com.chocolatey.pmsencoder.MEncoder
+import com.chocolatey.pmsencoder.MPlayer
 
 /*
     navix://channel?url=http%3A//example.com&referer=http%3A//example.com&agent=Mozilla
 
-    This protocol uses MEncoder as the downloader/transcoder
+    This protocol uses MPlayer as the downloader.
     Only the following Navi-X output fields are supported:
 
         url     // required: media URL
@@ -26,7 +26,7 @@ init {
         }
 
         action {
-            def mencoderArgs = []
+            def mplayerArgs = []
             def pairs = http.getNameValuePairs(uri) // uses URLDecoder.decode to decode the name and value
             def seenURL = false
 
@@ -37,18 +37,18 @@ init {
                 switch (name) {
                     case 'url':
                         if (value) {
-                            // quote handling is built in for MEncoder
+                            // quote handling is built in for the URI
                             uri = value
                             seenURL = true
                         }
                         break
                     case 'referer':
                         if (value)
-                            mencoderArgs << '-referrer' << quoteURI(value) // requires a recent (>= June 2010) mplayer
+                            mplayerArgs << '-referrer' << quoteURI(value) // requires a recent (>= June 2010) mplayer
                         break
                     case 'agent':
                         if (value)
-                            mencoderArgs << '-user-agent' << quoteURI(value)
+                            mplayerArgs << '-user-agent' << quoteURI(value)
                         break
                     case 'player':
                         if (value)
@@ -60,8 +60,10 @@ init {
             }
 
             if (seenURL) {
-                transcoder = new MEncoder()
-                transcoder.args.append(mencoderArgs)
+                downloader = new MPlayer()
+                args (downloader.args) {
+                    append(mplayerArgs)
+                }
             } else {
                 logger.error("invalid navix:// URI: no url parameter supplied: ${uri}")
             }

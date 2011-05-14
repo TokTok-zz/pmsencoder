@@ -86,4 +86,19 @@ public class Util {
     public static boolean directoryExists(File file) {
         (file != null) && file.exists() && file.isDirectory()
     }
+
+    public static List<String> extract(Object source, Object regex) {
+        def match = RegexHelper.match(source, regex)
+        def positional = match.positional
+
+        if (match) {
+            return positional.subList(1, positional.size())
+        } else {
+            return positional // i.e. empty list
+        }
+    }
+
+    public static MatchResult match(Object string, Object regex) {
+        RegexHelper.match(string, regex)
+    }
 }

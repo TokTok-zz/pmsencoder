@@ -1,9 +1,14 @@
 import com.chocolatey.pmsencoder.MEncoder
+import com.chocolatey.pmsencoder.MPlayer
 
+// if ffmpeg can't handle the protocol, use MPlayer as the downloader
 end {
     profile ('MPlayer') {
         pattern {
+            // don't use MPlayer if a downloader has already been set
+            // don't use MPlayer if MEncoder is already being used to transcode
             match { !downloader }
+            match { !(transcoder instanceof MEncoder) } // FIXME: bring back reject { ... }
             match {
                 // http://www.ffmpeg.org/ffmpeg-doc.html#SEC33
                 protocol && !(protocol in [
@@ -25,9 +30,7 @@ end {
         }
 
         action {
-            // don't clobber MEncoder options if they've already been set
-            if (!(transcoder instanceof MEncoder))
-                transcoder = new MEncoder()
+            downloader = new MPlayer()
         }
     }
 }
