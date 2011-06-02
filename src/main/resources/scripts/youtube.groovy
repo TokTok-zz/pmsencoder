@@ -13,7 +13,7 @@ check {
             def youtube_scrape_uri = "${uri}&has_verified=1"
 
             // extract the resource's sekrit identifier (t) from the HTML
-            scrape (uri: youtube_scrape_uri)('\\bflashvars\\s*=\\s*["\'][^"\']*?\\bt=(?<youtube_t>[^&"\']+)')
+            scrape(uri: youtube_scrape_uri)('\\bflashvars\\s*=\\s*["\'][^"\']*?\\bt=(?<youtube_t>[^&"\']+)')
 
             // extract the title and uploader ("creator") so that scripts can use them
             def $j = $(uri: youtube_scrape_uri) // curry

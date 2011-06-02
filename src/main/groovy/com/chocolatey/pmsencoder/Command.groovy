@@ -23,6 +23,10 @@ class Command {
         this(executable, [], [])
     }
 
+    Command(List<String> command) {
+        this(command[0], command[ 1 .. command.size() - 1 ], [])
+    }
+
     Command(String executable, List args) {
         this(executable, args, [])
     }
@@ -50,7 +54,7 @@ class Command {
     }
 
     public String toString() {
-        "{ executable: $executable, args: $args, output: $output }"
+        "{ class: ${this.class.name}, executable: $executable, args: $args, output: $output }"
     }
 
     public String getExecutable() {
@@ -78,7 +82,7 @@ class Command {
     }
 
     private List<String> expandMacros(List<String> list, String uri) {
-        list.collect { it.replaceAll('\\bURI\\b', uri) }
+        list.collect { it.replace('URI', uri) }
     }
 
     protected List<String> toList(String uri) {
@@ -89,7 +93,8 @@ class Command {
 @InheritConstructors
 class Downloader extends Command {
     private List<String> expandMacros(List<String> list, String uri, String downloaderOut) {
-        list.collect { it.replaceAll('\\bURI\\b', uri).replaceAll('\\bDOWNLOADER_OUT\\b', downloaderOut) }
+        assert uri
+        list.collect { it.replace('URI', uri).replace('DOWNLOADER_OUT', downloaderOut) }
     }
 
     protected List<String> toList(String uri, String downloaderOut) {
@@ -100,7 +105,8 @@ class Downloader extends Command {
 @InheritConstructors
 class Transcoder extends Command {
     private List<String> expandMacros(List<String> list, String uri, String transcoderOut) {
-        list.collect { it.replaceAll('\\bURI\\b', uri).replaceAll('\\bTRANSCODER_OUT\\b', transcoderOut) }
+        assert uri
+        list.collect { assert it; it.replace('URI', uri).replace('TRANSCODER_OUT', transcoderOut) }
     }
 
     protected List<String> toList(String uri, String transcoderOut) {

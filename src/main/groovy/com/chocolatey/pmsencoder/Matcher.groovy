@@ -68,13 +68,15 @@ class Matcher implements LoggerMixin {
             assert response.transcoder != null
 
             def uri = response['uri']
+            def engine = response.request.engine
+
             logger.debug("matching URI: ${uri}")
 
             // XXX this is horribly inefficient, but it's a) trivial to implement and b) has the right semantics.
             // the small number of scripts make this a non-issue for now
             Stage.each { stage ->
                 profiles.values().each { profile ->
-                    if (profile.stage == stage && profile.match(response)) {
+                    if (profile.stage == stage && profile.engine == engine && profile.match(response)) {
                         // XXX make sure we take the name from the profile itself
                         // rather than the Map key - the latter may have been usurped
                         // by a profile with a different name
@@ -101,6 +103,7 @@ class Matcher implements LoggerMixin {
     public void registerProfile(String name, Stage stage, Map<String, String> options, Closure closure) {
         def extendz = options['extends']
         def replaces = options['replaces']
+        def engine = options['engine'] ?: 'pmsencoder'
         def target
 
         if (replaces != null) {
@@ -115,7 +118,7 @@ class Matcher implements LoggerMixin {
             }
         }
 
-        def profile = new Profile(this, name, stage)
+        def profile = new Profile(this, name, stage, engine)
 
         try {
             // run the profile block at compile-time to extract its (optional) pattern and action blocks,

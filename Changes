@@ -1,8 +1,8 @@
-1.6.0 TBC
+2.0.0 TBC
     - Breaking changes:
         - renamed log -> logger
     - look in platform subdirectory for standalone executables (e.g. rtmpdump) if paths aren't defined in PMS.conf
-    - DOWNLOADER_OUT and TRANSCODER_OUT are substituted at transcode time rather than being exposed as variables
+    - DOWNLOADER_OUT, TRANSCODER_OUT and URI are placeholders that are substituted at transcode time
 
 1.5.5 Sun Mar 6 17:45:11 2011
     - use MEncoder as a transcoder (instead of MPlayer as a downloader) to work around

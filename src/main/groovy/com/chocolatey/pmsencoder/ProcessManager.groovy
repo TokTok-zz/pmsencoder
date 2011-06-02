@@ -66,55 +66,51 @@ private class ProcessManager implements LoggerMixin {
         outputParams.input_pipes[0] = transcoderOutputPipe
     }
 
-    public void handleHook(List<String> hookArgs) {
-        def cmdArray = listToArray(hookArgs)
-        // PMS doesn't require input from this process - so use new OutputParams
-        def params = new OutputParams(pmsencoder.getConfiguration())
-
-        params.log = true
-
-        def hookProcess = new ProcessWrapperImpl(cmdArray, params)
-
-        logger.info('hook command: ' + Arrays.toString(cmdArray))
-        hookProcess.runInNewThread()
-        attachedProcesses << hookProcess
+    public void createDownloaderFifo(String downloaderOutputBasename) {
+        mkfifo(new PipeProcess(downloaderOutputBasename))
     }
 
-    public ProcessWrapperImpl handleDownloadWindows(List<String> downloaderArgs, List<String> transcoderArgs) {
-        def cmdList = ([ "cmd.exe", "/C" ] + downloaderArgs + "|" + transcoderArgs) as List<String>
-        def cmdArray = listToArray(cmdList)
-        def pw = new ProcessWrapperImpl(cmdArray, outputParams) // may modify cmdArray[0]
+    public void attachAndStartCommand(List<String> cmdArgs, useOutputParams = false) {
+        def cmdArray = listToArray(cmdArgs)
+        def params
 
-        logger.info('command: ' + Arrays.toString(cmdArray))
-        return pw
+        if (useOutputParams) {
+            params = outputParams
+        } else {
+            // PMS doesn't require input from this process - so use new OutputParams
+            params = new OutputParams(pmsencoder.getConfiguration())
+            params.log = true
+        }
+
+        def process = new ProcessWrapperImpl(cmdArray, params)
+
+        attachedProcesses << process
+        logger.info('starting command: ' + Arrays.toString(cmdArray))
+        process.runInNewThread()
     }
 
-    public void handleDownloadUnix(List<String> downloaderArgs, String downloaderOutputBasename) {
-        def downloaderOutputPipe = mkfifo(new PipeProcess(downloaderOutputBasename))
-        attachedProcesses << downloaderOutputPipe.getPipeProcess()
-        def cmdArray = listToArray(downloaderArgs)
+    public ProcessWrapperImpl attachCommand(List<String> cmdArgs, boolean useOutputParams = false) {
+        def cmdArray = listToArray(cmdArgs)
+        def params
 
-        // PMS doesn't require input from this process - so use new OutputParams
-        def params = new OutputParams(pmsencoder.getConfiguration())
-        params.log = true
+        if (useOutputParams) {
+            params = outputParams
+        } else {
+            // PMS doesn't require input from this process - so use new OutputParams
+            params = new OutputParams(pmsencoder.getConfiguration())
+            params.log = true
+        }
 
-        def downloaderProcess = new ProcessWrapperImpl(cmdArray, params) // may modify cmdArray[0]
-        attachedProcesses << downloaderProcess
-        logger.info('downloader command: ' + Arrays.toString(cmdArray))
-        downloaderProcess.runInNewThread()
+        def process = new ProcessWrapperImpl(cmdArray, outputParams) // may modify cmdArray[0]
+        attachedProcesses.each { process.attachProcess(it) }
+        logger.info('starting command: ' + Arrays.toString(cmdArray))
+        return process
     }
 
-    public ProcessWrapperImpl handleTranscode(List<String> transcoderArgs) {
-        def cmdArray = listToArray(transcoderArgs)
-        def transcoderProcess = new ProcessWrapperImpl(cmdArray, outputParams) // may modify cmdArray[0]
-        logger.info('transcoder command: ' + Arrays.toString(cmdArray))
-        return transcoderProcess
-    }
-
-    public ProcessWrapper launchTranscode(ProcessWrapperImpl transcoderProcess) {
-        attachedProcesses.each { transcoderProcess.attachProcess(it) }
-        transcoderProcess.runInNewThread()
+    public ProcessWrapper startCommandProcess(ProcessWrapperImpl process) {
+        sleepFor(3000)
+        process.runInNewThread()
         sleepFor(LAUNCH_TRANSCODE_SLEEP)
-        return transcoderProcess
+        return process
     }
 }

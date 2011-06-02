@@ -15,32 +15,35 @@ import net.pms.configuration.PmsConfiguration
 import net.pms.dlna.DLNAMediaInfo
 import net.pms.dlna.DLNAResource
 import net.pms.encoders.Player
+import net.pms.external.FinalizeTranscoderArgsListener
 import net.pms.external.ExternalListener
 import net.pms.formats.Format
+import net.pms.io.OutputParams
 import net.pms.PMS
 
 import no.geosoft.cc.io.FileListener
 import no.geosoft.cc.io.FileMonitor
 
 import org.apache.log4j.xml.DOMConfigurator
+import org.apache.log4j.Logger
 
-class Plugin implements ExternalListener, FileListener {
-    private static final String VERSION = '1.6.0'
+class Plugin implements FinalizeTranscoderArgsListener, FileListener {
+    private static final String VERSION = '2.0.0'
     private static final String DEFAULT_SCRIPT_DIRECTORY = 'pmsencoder'
     private static final String LOG_CONFIG = 'pmsencoder.logger.config'
     private static final String SCRIPT_DIRECTORY = 'pmsencoder.script.directory'
     private static final String SCRIPT_POLL = 'pmsencoder.script.poll'
     // 1 second is flaky - it results in overlapping file change events
     private static final int MIN_SCRIPT_POLL_INTERVAL = 2
+    private static Matcher matcher
+    private static Logger logger
 
     private PMSEncoder pmsencoder
     private FileMonitor fileMonitor
     private File scriptDirectory
     private long scriptPollInterval
-    private Matcher matcher
     private PmsConfiguration configuration
     private PMS pms
-    private Object lock = new Object()
 
     public Plugin() {
         info('initializing PMSEncoder ' + VERSION)
@@ -50,6 +53,42 @@ class Plugin implements ExternalListener, FileListener {
         // get optional overrides from PMS.conf
         String customLogConfigPath = configuration.getCustomProperty(LOG_CONFIG)
         String candidateScriptDirectory = configuration.getCustomProperty(SCRIPT_DIRECTORY)
+
+        // set up log4j
+        // do this as early as possible so log messages don't get lost in the debug.log
+        def customLogConfig
+
+        if (customLogConfigPath) {
+            def customLogConfigFile = new File(customLogConfigPath)
+
+            if (fileExists(customLogConfigFile)) {
+                customLogConfig = customLogConfigFile.getAbsolutePath()
+            } else {
+                def absPath = customLogConfigFile.getAbsolutePath()
+                error("invalid path for log4j config file ($absPath): no such file", null)
+            }
+        }
+
+        // load log4j config file
+        if (customLogConfig) {
+            info("loading custom log4j config file: $customLogConfig")
+
+            try {
+                DOMConfigurator.configure(customLogConfig)
+            } catch (Exception e) {
+                error("error loading log4j config file ($customLogConfig)", e)
+                loadDefaultLogConfig()
+            }
+        } else {
+            loadDefaultLogConfig()
+        }
+
+        def klass = this.getClass().name
+        try {
+            logger = Logger.getLogger(klass)
+        } catch (Throwable t) {
+            error("Can't create logger for $klass", t)
+        }
 
         /*
            XXX: When Groovy breaks down...
@@ -100,34 +139,6 @@ class Plugin implements ExternalListener, FileListener {
             }
         }
 
-        // set up log4j
-        def customLogConfig
-
-        if (customLogConfigPath) {
-            def customLogConfigFile = new File(customLogConfigPath)
-
-            if (fileExists(customLogConfigFile)) {
-                customLogConfig = customLogConfigFile.getAbsolutePath()
-            } else {
-                def absPath = customLogConfigFile.getAbsolutePath()
-                error("invalid path for log4j config file ($absPath): no such file", null)
-            }
-        }
-
-        // load log4j config file
-        if (customLogConfig) {
-            info("loading custom log4j config file: $customLogConfig")
-
-            try {
-                DOMConfigurator.configure(customLogConfig)
-            } catch (Exception e) {
-                error("error loading log4j config file ($customLogConfig)", e)
-                loadDefaultLogConfig()
-            }
-        } else {
-            loadDefaultLogConfig()
-        }
-
         // make sure we have a matcher before we create the transcoding engine
         createMatcher()
 
@@ -144,6 +155,47 @@ class Plugin implements ExternalListener, FileListener {
         registerPlayer(pmsencoder)
     }
 
+    @Override
+    public List<String> finalizeTranscoderArgs(
+        String engine,
+        String filename,
+        DLNAResource dlna,
+        DLNAMediaInfo media,
+        OutputParams params,
+        List<String> cmdList
+    ) {
+        // TODO: verify that MEncoder can handle file:// URIs
+        def uri = new File(filename).toURI().toString()
+        def transcoder = new Transcoder(cmdList)
+        def request = new Request(engine, uri, dlna, media, params, transcoder)
+        def response = match(request)
+        assert response.transcoder
+        return response.transcoder.toList(response['uri'])
+    }
+
+    public static Response match(String engine, String uri, DLNAResource dlna, DLNAMediaInfo media, OutputParams params) {
+        def request = new Request(engine, uri, dlna, media, params)
+        match(request)
+    }
+
+    static Response match(Request request) {
+        info("invoking matcher for: engine: ${request.engine}, uri: ${request.uri}")
+
+        def response = matcher.match(request)
+        def matches = response.matches
+        def nMatches = matches.size()
+
+        if (nMatches == 0) {
+            info('0 matches for: ' + uri)
+        } else if (nMatches == 1) {
+            info('1 match (' + matches + ') for: ' + uri)
+        } else {
+            info(nMatches + ' matches (' + matches + ') for: ' + uri)
+        }
+
+        return response
+    }
+
     private void loadDefaultLogConfig() {
         // XXX squashed bug - don't call this log4j.xml, as, by default,
         // log4j attempts to load log4j.properties and log4j.xml automatically
@@ -157,11 +209,18 @@ class Plugin implements ExternalListener, FileListener {
         }
     }
 
-    private void info(String message) {
-        PMS.minimal("PMSEncoder: $message")
+    private static void info(String message) {
+        if (logger) {
+            logger.info(message)
+        } else {
+            PMS.minimal("PMSEncoder: $message")
+        }
     }
 
-    private void error(String message, Exception e) {
+    private static void error(String message, Exception e) {
+        if (logger) {
+            logger.error(message)
+        }
         PMS.error("PMSEncoder: $message", e)
     }
 
@@ -176,8 +235,8 @@ class Plugin implements ExternalListener, FileListener {
         createMatcher()
     }
 
-    private void createMatcher() {
-        synchronized (lock) {
+    private static void createMatcher() {
+        synchronized (this) {
             matcher = new Matcher(pms)
 
             try {

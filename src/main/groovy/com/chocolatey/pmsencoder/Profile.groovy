@@ -10,11 +10,13 @@ class Profile implements LoggerMixin {
     private Closure actionBlock
     final Stage stage
     final String name
+    final String engine
 
-    Profile(Matcher matcher, String name, Stage stage) {
+    Profile(Matcher matcher, String name, Stage stage, String engine) {
         this.matcher = matcher
         this.name = name
         this.stage = stage
+        this.engine = engine
     }
 
     void extractBlocks(Closure closure) {

@@ -15,7 +15,7 @@ end {
                     'concat',
                     'file',
                     'gopher',
-                    'http',
+                    'http', // XXX: https?
                     'pipe',
                     'rtmp',
                     'rtmpe',

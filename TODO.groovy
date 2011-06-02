@@ -99,7 +99,7 @@ Downloaders:
 
 */
 
-// add a navix:// protocol e.g. navix://default?referrer=url_encoded_uri&url=...
+// add a navix:// protocol e.g. navix://navix?referrer=url_encoded_uri&url=...
 
 // need better vlc detection
 
@@ -128,3 +128,10 @@ Downloaders:
 // implicit imports: automatically import e.g. Ffmpeg &c. into scripts:
 // TODO: see how gradle does it
 // http://groovy.329449.n5.nabble.com/Implicit-imports-for-scripts-td355430.html
+
+// XXX: TODON'T: we can't get rid of the top-level stage method (i.e. a script is just zero or more profiles)
+// as it would break BEGIN.groovy, which needs to establish its stage (begin) but doesn't define a profile.
+// similarly, don't hoist engine up into a stage parameter as it's profile-specific and would be nonsensical
+// in BEGIN.groovy
+
+// move commands to their own namespace e.g. com.chocolatey.pmsencoder.commands.MPlayer

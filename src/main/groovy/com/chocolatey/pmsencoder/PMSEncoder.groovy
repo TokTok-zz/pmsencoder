@@ -64,7 +64,11 @@ class PMSEncoder extends MEncoderWebVideo implements LoggerMixin {
     }
 
     @Override
-    public ProcessWrapper launchTranscode(String oldURI, DLNAResource dlna, DLNAMediaInfo media, OutputParams params)
+    public ProcessWrapper launchTranscode(
+        String oldURI,
+        DLNAResource dlna,
+        DLNAMediaInfo media,
+        OutputParams params)
     throws IOException {
         def processManager = new ProcessManager(this, params)
         def threadId = currentThreadId() // make sure concurrent threads don't use the same filename
@@ -72,7 +76,7 @@ class PMSEncoder extends MEncoderWebVideo implements LoggerMixin {
         def transcoderOutputBasename = "pmsencoder_transcoder_out_${uniqueId}" // always used (read by PMS)
         def transcoderOutputPath = processManager.getFifoPath(transcoderOutputBasename)
         def downloaderOutputBasename = "pmsencoder_downloader_out_${uniqueId}"
-        def downloaderOutputPath = isWindows ? '-' : processManager.getFifoPath(downloaderOutputBasename)
+        def downloaderOutputPath = processManager.getFifoPath(downloaderOutputBasename)
 
         // whatever happens, we need a transcoder output FIFO (even if there's a match error, we carry
         // on with the unmodified URI), so we can create that upfront
@@ -82,22 +86,7 @@ class PMSEncoder extends MEncoderWebVideo implements LoggerMixin {
         def mencoderPath = normalizePath(configuration.getMencoderPath())
         def mencoderMtPath = normalizePath(configuration.getMencoderMTPath())
         def mplayerPath = normalizePath(configuration.getMplayerPath())
-        def request = new Request(oldURI, dlna, params)
-
-        logger.info('invoking matcher for: ' + oldURI)
-
-        def response = plugin.match(request)
-        def matches = response.matches
-        def nMatches = matches.size()
-
-        if (nMatches == 0) {
-            logger.info('0 matches for: ' + oldURI)
-        } else if (nMatches == 1) {
-            logger.info('1 match (' + matches + ') for: ' + oldURI)
-        } else {
-            logger.info(nMatches + ' matches (' + matches + ') for: ' + oldURI)
-        }
-
+        def response = plugin.match('pmsencoder', oldURI, dlna, media, params)
         def mimeType = response['mimeType']
 
         if (mimeType != null) {
@@ -108,39 +97,39 @@ class PMSEncoder extends MEncoderWebVideo implements LoggerMixin {
             threadLocal.remove() // remove it to prevent memory leaks
         }
 
+        def newURI = Util.quoteURI(response['uri'])
+
+        if (response.hook) {
+            processManager.attachAndStartCommand(response.hook.toList(newURI))
+        }
+
         // FIXME: groovy++ type inference fail: the subscript and/or concatenation operations
         // on downloaderCmd and transcoderCmd are causing groovy++ to define them as
         // Collection<String> rather than List<String>
         List<String> downloaderCmd, transcoderCmd
-        def newURI = Util.quoteURI(response['uri'])
-
-        if (response.downloader) {
-            downloaderCmd = response.downloader.toList(newURI, downloaderOutputPath)
-            transcoderCmd = response.transcoder.toList(downloaderOutputPath, transcoderOutputPath)
-        } else {
-            transcoderCmd = response.transcoder.toList(newURI, transcoderOutputPath)
-        }
-
-        if (response.hook) {
-            processManager.handleHook(response.hook.toList(newURI))
-        }
 
         // Groovy's "documentation" doesn't make it clear whether local variables are null-initialized
         // http://stackoverflow.com/questions/4025222
-        def transcoderProcess = null
+        def commandProcess = null
 
-        if (downloaderCmd) {
+        if (response.downloader) {
+            downloaderCmd = response.downloader.toList(newURI, downloaderOutputPath)
+            transcoderCmd = response.transcoder.toList(isWindows ? '-' : downloaderOutputPath, transcoderOutputPath)
+
             if (isWindows) {
-                transcoderProcess = processManager.handleDownloadWindows(downloaderCmd, transcoderCmd)
+                transcoderCmd = [ 'win32/mcfifo', downloaderOutputPath ] + transcoderCmd
+                processManager.attachAndStartCommand(transcoderCmd, true)
+                commandProcess = processManager.attachCommand(downloaderCmd)
             } else {
-                processManager.handleDownloadUnix(downloaderCmd, downloaderOutputBasename)
+                processManager.createDownloaderFifo(downloaderOutputBasename)
+                processManager.attachAndStartCommand(downloaderCmd)
+                commandProcess = processManager.attachCommand(transcoderCmd, true)
             }
+        } else {
+            transcoderCmd = response.transcoder.toList(newURI, transcoderOutputPath)
+            commandProcess = processManager.attachCommand(transcoderCmd, true)
         }
 
-        if (transcoderProcess == null) {
-            transcoderProcess = processManager.handleTranscode(transcoderCmd)
-        }
-
-        return processManager.launchTranscode(transcoderProcess)
+        processManager.startCommandProcess(commandProcess)
     }
 }

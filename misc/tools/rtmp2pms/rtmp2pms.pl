@@ -2,7 +2,7 @@
 
 # rtmp2pms -u: convert rtmpdump command lines to PMSEncoder rtmpdump:// URIs
 # rtmp2pms -p: convert simple text files with stream names, (optional) thumbnail URLs
-#              and rtmpdump commands to PMS WEB.conf lines
+#              and rtmpdump commands to PMS WEB.conf lines (see news.txt)
 #
 # usage:
 #
@@ -50,11 +50,12 @@ our $FOLDER = 'Web,Live News';
 
 sub uri($) {
     my $command = shift;
-    return unless ($command =~ s{^.*?rtmpdump(?:\.exe)?\s+}{});
+    return unless ($command =~ s{^.*?rtmpdump(?:\.exe)?\s+}{}i);
+    $command =~ s{\s+$}{};
     $command =~ s{["']}{}g;
     $command =~ s{(--?\w+)\s+(?!-)(\S+)}{"$1=" . uri_escape($2)}eg;
     $command =~ s{\s+}{&}g;
-    return "rtmpdump://rtmp2pms?$command";
+    return "rtmpdump://rtmp2pmspl?$command";
 }
 
 GetOptions(

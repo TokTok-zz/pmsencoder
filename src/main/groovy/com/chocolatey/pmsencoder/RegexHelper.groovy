@@ -28,7 +28,7 @@ class MatchResult {
     }
 
     public String toString() {
-        return "{ matched: $matched, named: $named, positional: $positional }"
+        return "{ class: ${this.class.name}, matched: $matched, named: $named, positional: $positional }"
     }
 }
 

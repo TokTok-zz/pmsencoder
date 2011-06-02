@@ -17,9 +17,7 @@ import com.chocolatey.pmsencoder.MPlayer
 
 init {
     def nbcores = PMS.getConfiguration().getNumberOfCpuCores()
-    // have to be completely silent on Windows as stdout is sent to the transcoder
-    // FIXME: (hopefully) temporary pending a mkfifo workaround
-    def mplayerLogLevel = PMS.get().isWindows() ? 'all=1' : 'all=2'
+    def mplayerLogLevel = 'all=2'
 
     /*
         Matcher-level (global) lists of strings that are used to initialize the built-in downloaders and

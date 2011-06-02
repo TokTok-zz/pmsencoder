@@ -18,15 +18,15 @@ class Response implements LoggerMixin {
     private Transcoder transcoder
 
     public Response() {
-        this(new Stash(), Matcher.createDefaultTranscoder())
+        this(new Stash(), null)
     }
 
     public Response(Stash stash) {
-        this(stash, Matcher.createDefaultTranscoder())
+        this(stash, null)
     }
 
     public Response(Map map) {
-        this(new Stash(map), Matcher.createDefaultTranscoder())
+        this(new Stash(map), null)
     }
 
     public Response(Transcoder transcoder) {
@@ -35,11 +35,11 @@ class Response implements LoggerMixin {
 
     public Response(Stash stash, Transcoder transcoder) {
         this.stash = stash
-        this.transcoder = transcoder
+        this.transcoder = transcoder ?: Matcher.createDefaultTranscoder()
     }
 
     public Response(Request request) {
-        this([ uri: request.uri ])
+        this(new Stash([ uri: request.uri ]), request.transcoder)
         this.request = request
     }
 
@@ -63,6 +63,7 @@ class Response implements LoggerMixin {
     public java.lang.String toString() {
         def repr = """
         {
+            class:      ${this.class.name}
             downloader: $downloader
             hook:       $hook
             matches:    $matches
