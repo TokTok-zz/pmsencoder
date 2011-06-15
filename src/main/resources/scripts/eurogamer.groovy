@@ -1,4 +1,4 @@
-import com.chocolatey.pmsencoder.MPlayer
+import com.chocolatey.pmsencoder.command.MPlayer
 
 // videofeed.Web,Eurogamer=http://rss.feedsportal.com/feed/eurogamer/eurogamer_tv
 

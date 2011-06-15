@@ -1,5 +1,5 @@
-import com.chocolatey.pmsencoder.MEncoder
-import com.chocolatey.pmsencoder.MPlayer
+import com.chocolatey.pmsencoder.command.MEncoder
+import com.chocolatey.pmsencoder.command.MPlayer
 
 // if ffmpeg can't handle the protocol, use MPlayer as the downloader
 end {

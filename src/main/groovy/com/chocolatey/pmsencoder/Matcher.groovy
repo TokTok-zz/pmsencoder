@@ -1,6 +1,8 @@
 @Typed
 package com.chocolatey.pmsencoder
 
+import com.chocolatey.pmsencoder.command.*
+
 import static groovy.io.FileType.FILES
 
 import net.pms.PMS

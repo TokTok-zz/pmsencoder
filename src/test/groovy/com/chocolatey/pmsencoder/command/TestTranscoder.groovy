@@ -1,6 +1,8 @@
 @Typed
 
-package com.chocolatey.pmsencoder
+package com.chocolatey.pmsencoder.command
+
+import com.chocolatey.pmsencoder.command.Transcoder
 
 import groovy.transform.*
 

@@ -1,4 +1,4 @@
-import com.chocolatey.pmsencoder.MEncoder
+import com.chocolatey.pmsencoder.command.MEncoder
 
 script {
     profile ('PPLive') {

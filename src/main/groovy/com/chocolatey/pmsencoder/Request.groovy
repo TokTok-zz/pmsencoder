@@ -1,6 +1,8 @@
 @Typed
 package com.chocolatey.pmsencoder
 
+import com.chocolatey.pmsencoder.command.Transcoder
+
 import net.pms.dlna.DLNAMediaInfo
 import net.pms.dlna.DLNAResource
 import net.pms.io.OutputParams

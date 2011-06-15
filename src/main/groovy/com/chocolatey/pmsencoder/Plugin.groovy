@@ -1,9 +1,10 @@
 @Typed
 package com.chocolatey.pmsencoder
 
-import static com.chocolatey.pmsencoder.Util.guard
-import static com.chocolatey.pmsencoder.Util.fileExists
+import com.chocolatey.pmsencoder.command.Transcoder
 import static com.chocolatey.pmsencoder.Util.directoryExists
+import static com.chocolatey.pmsencoder.Util.fileExists
+import static com.chocolatey.pmsencoder.Util.guard
 
 import static groovy.io.FileType.FILES
 import groovy.swing.SwingBuilder // TODO

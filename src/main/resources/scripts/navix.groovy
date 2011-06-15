@@ -1,4 +1,4 @@
-import com.chocolatey.pmsencoder.MPlayer
+import com.chocolatey.pmsencoder.command.MPlayer
 
 /*
     navix://channel?url=http%3A//example.com&referer=http%3A//example.com&agent=Mozilla

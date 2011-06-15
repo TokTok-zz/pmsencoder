@@ -1,11 +1,13 @@
 @Typed
 package com.chocolatey.pmsencoder
 
+import com.chocolatey.pmsencoder.command.TestTranscoder
+
 import net.pms.PMS
 
 class PMSEncoderTest extends PMSEncoderTestCase {
     void testResponseCopy() {
-        def response = new Response(new Stash([ foo: 'bar' ]), Util.toCommand(TestTranscoder.class, [ 'baz', 'quux' ]))
+        def response = new Response(new Stash([ foo: 'bar' ]), new TestTranscoder([ 'baz', 'quux' ]))
         assert response != null
         def newResponse = new Response(response)
         assert newResponse != null

@@ -1,6 +1,8 @@
 @Typed
 package com.chocolatey.pmsencoder
 
+import com.chocolatey.pmsencoder.command.Ffmpeg
+
 class ProfileTest extends PMSEncoderTestCase {
     void testOverrideDefaultArgs() {
         assertMatch([

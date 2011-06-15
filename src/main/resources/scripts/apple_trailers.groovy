@@ -1,4 +1,4 @@
-import com.chocolatey.pmsencoder.MPlayer
+import com.chocolatey.pmsencoder.command.MPlayer
 
 script {
     profile ('Apple Trailers') {

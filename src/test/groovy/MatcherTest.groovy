@@ -21,7 +21,7 @@ class MatcherTest extends PMSEncoderTestCase {
         assertMatch([
             loadDefaultScripts: true,
             uri: 'http://www.example.com',
-            // make sure nbcores is interpolated here as 3 in -threads 3
+            // make sure ncores is interpolated here as 3 in -threads 3
             // (this is mocked to 3 in PMSEncoderTestCase)
             wantTranscoder: { List<String> transcoder -> transcoder.containsAll([ '-threads', '3' ]) },
             useDefaultTranscoder: true

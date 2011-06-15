@@ -1,4 +1,4 @@
-import com.chocolatey.pmsencoder.MPlayer
+import com.chocolatey.pmsencoder.command.MPlayer
 
 // this needs to precede 'YouTube Metadata' (check), hence: script (see, for now, TODO.groovy for stages)
 

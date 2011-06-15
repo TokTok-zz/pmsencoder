@@ -1,4 +1,4 @@
-import com.chocolatey.pmsencoder.MEncoder
+import com.chocolatey.pmsencoder.command.MEncoder
 
 // videostream.Web,TV=Bloomberg TV,http://www.bloomberg.com/streams/video/LiveBTV200.asx
 

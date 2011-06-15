@@ -1,6 +1,7 @@
 @Typed
 package com.chocolatey.pmsencoder
 
+import com.chocolatey.pmsencoder.command.TestTranscoder
 import groovy.util.GroovyTestCase
 import mockit.*
 import net.pms.configuration.PmsConfiguration
@@ -141,7 +142,7 @@ abstract class PMSEncoderTestCase extends GroovyTestCase {
 
         // populate the response
         def response, hook, downloader
-        def transcoder = transcoderList ? Util.toCommand(TestTranscoder.class, transcoderList) : new TestTranscoder()
+        def transcoder = transcoderList ? new TestTranscoder(transcoderList) : new TestTranscoder()
 
         if (stash != null) {
             response = new Response(stash, transcoder)

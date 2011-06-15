@@ -1,7 +1,6 @@
+import com.chocolatey.pmsencoder.command.*
+
 import net.pms.PMS
-import com.chocolatey.pmsencoder.Ffmpeg
-import com.chocolatey.pmsencoder.MEncoder
-import com.chocolatey.pmsencoder.MPlayer
 
 /*
     this is the default/builtin PMSEncoder script. PMSEncoder loads it from
@@ -16,7 +15,7 @@ import com.chocolatey.pmsencoder.MPlayer
 */
 
 init {
-    def nbcores = PMS.getConfiguration().getNumberOfCpuCores()
+    def ncores = PMS.getConfiguration().getNumberOfCpuCores()
     def mplayerLogLevel = 'all=2'
 
     /*
@@ -29,8 +28,8 @@ init {
 
         transcoder = new Ffmpeg()
 
-            ffmpeg -v 0 -y -threads nbcores -i URI -threads nbcores -target ntsc-dvd TRANSCODER_OUT
-            ffmpeg -v 0 -y -threads nbcores -i DOWNLOADER_OUT -threads nbcores -target ntsc-dvd TRANSCODER_OUT
+            ffmpeg -v 0 -y -threads ncores -i URI -threads ncores -target ntsc-dvd TRANSCODER_OUT
+            ffmpeg -v 0 -y -threads ncores -i DOWNLOADER_OUT -threads ncores -target ntsc-dvd TRANSCODER_OUT
 
         transcoder = new MEncoder()
 
@@ -58,12 +57,12 @@ init {
     // meaning for these checks
     if (!Ffmpeg.defaultArgs) {
         // -threads 0 doesn't work for all codecs - better to specify
-        Ffmpeg.defaultArgs = "-v 0 -y -threads ${nbcores} -i URI"
+        Ffmpeg.defaultArgs = "-v 0 -y -threads ${ncores} -i URI"
     }
 
     // default ffmpeg output options
     if (!Ffmpeg.defaultOutputArgs) {
-        Ffmpeg.defaultOutputArgs = "-threads ${nbcores} -target ntsc-dvd TRANSCODER_OUT"
+        Ffmpeg.defaultOutputArgs = "-threads ${ncores} -target ntsc-dvd TRANSCODER_OUT"
     }
 
     // default mencoder transcode command
@@ -73,13 +72,13 @@ init {
             '-msglevel', 'all=2',
             '-quiet',
             '-prefer-ipv4',
+            '-cache', '16384', // default cache size; default minimum percentage is 20%
             '-oac', 'lavc',
             '-of', 'lavf',
             '-lavfopts', 'format=dvd',
             '-ovc', 'lavc',
-            '-lavcopts', "vcodec=mpeg2video:vbitrate=4096:threads=${nbcores}:acodec=ac3:abitrate=128",
+            '-lavcopts', "vcodec=mpeg2video:vbitrate=4096:threads=${ncores}:acodec=ac3:abitrate=128",
             '-ofps', '25',
-            '-cache', '16384', // default cache size; default minimum percentage is 20%
             '-vf', 'harddup',
             '-o', 'TRANSCODER_OUT',
             'URI'

@@ -1,6 +1,8 @@
 @Typed
 package com.chocolatey.pmsencoder
 
+import com.chocolatey.pmsencoder.command.Command
+
 import net.pms.PMS
 
 public class Util {
@@ -40,7 +42,7 @@ public class Util {
             command
         } else if (klass.isAssignableFrom(object.class)) {
             klass.cast(object)
-        } else {
+        } else { // String/GString
             // FIXME use Apache CommandLine to tokenize correctly
             def list = object.toString().tokenize()
             assert list
