@@ -47,7 +47,7 @@
         <dependency>
             <groupId>com.google.code</groupId>
             <artifactId>ps3mediaserver</artifactId>
-            <version>1.21.0</version>
+            <version>1.24.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -257,14 +257,14 @@
                         <artifactItem>
                             <groupId>com.google.code</groupId>
                             <artifactId>ps3mediaserver</artifactId>
-                            <version>1.21.0</version>
+                            <version>1.24.0</version>
                             <packaging>jar</packaging>
-                            <downloadUrl>http://ps3mediaserver.googlecode.com/files/pms-generic-linux-unix-1.21.0.tgz</downloadUrl>
+                            <downloadUrl>http://ps3mediaserver.googlecode.com/files/pms-generic-linux-unix-1.24.0.tgz</downloadUrl>
                             <install>true</install>
                             <force>false</force>
-                            <checksum>9a822130fd185ffe709207c1621ff269bc15e62d</checksum>
-                            <extractFile>pms-linux-1.21.0/pms.jar</extractFile>
-                            <extractFileChecksum>14878f3a33cce7798aea2e664177d7c6cf56d2d8</extractFileChecksum>
+                            <checksum>53a6018315cf3f622f94e1a21d6502272da86edc</checksum>
+                            <extractFile>pms-linux-1.24.0/pms.jar</extractFile>
+                            <extractFileChecksum>2b46078aca3c8aa211954b7dc64a70ce5e85f145</extractFileChecksum>
                         </artifactItem>
                     </artifactItems>
                 </configuration>

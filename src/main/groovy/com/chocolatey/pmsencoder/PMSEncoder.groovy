@@ -12,12 +12,11 @@ import net.pms.io.ProcessWrapper
 import net.pms.PMS
 
 class PMSEncoder extends MEncoderWebVideo implements LoggerMixin {
-    public static final boolean isWindows = PMS.get().isWindows()
-    private Plugin plugin
-    private final static ThreadLocal threadLocal = new ThreadLocal<String>()
+    private final boolean isWindows = Platform.isWindows()
+    private static final ThreadLocal threadLocal = new ThreadLocal<String>()
     private static final String DEFAULT_MIME_TYPE = 'video/mpeg'
-
-    final PmsConfiguration configuration
+    private Plugin plugin
+    private PmsConfiguration configuration
     public static final String ID = 'pmsencoder'
 
     private long currentThreadId() {
@@ -68,8 +67,8 @@ class PMSEncoder extends MEncoderWebVideo implements LoggerMixin {
         String oldURI,
         DLNAResource dlna,
         DLNAMediaInfo media,
-        OutputParams params)
-    throws IOException {
+        OutputParams params
+    ) throws IOException {
         def processManager = new ProcessManager(this, params)
         def threadId = currentThreadId() // make sure concurrent threads don't use the same filename
         def uniqueId = System.currentTimeMillis() + '_' + threadId

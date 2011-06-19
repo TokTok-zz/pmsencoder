@@ -9,7 +9,7 @@ import net.pms.io.OutputParams
 
 class Request {
     final String engine
-    final String uri
+    final Stash stash
     final DLNAResource dlna
     final DLNAMediaInfo media
     final OutputParams params
@@ -21,14 +21,14 @@ class Request {
 
     Request(
         String engine,
-        String uri,
+        Stash stash,
         DLNAResource dlna,
         DLNAMediaInfo media,
         OutputParams params,
         Transcoder transcoder = null
     ) {
         this.engine = engine
-        this.uri = uri
+        this.stash = stash
         this.dlna = dlna
         this.media = media
         this.params = params
@@ -38,10 +38,18 @@ class Request {
     // copy constructor - all fields are immutable so we can just copy them
     Request(Request other) {
         this.engine = other.engine
-        this.uri = other.uri
+        this.stash = other.stash
         this.dlna = other.dlna
         this.media = other.media
         this.params = other.params
         this.transcoder = other.transcoder
+    }
+
+    protected String getAt(String name) {
+        stash[name]
+    }
+
+    protected String putAt(String name, Object value) {
+        stash[name] = value
     }
 }

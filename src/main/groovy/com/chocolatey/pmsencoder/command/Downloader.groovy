@@ -2,6 +2,8 @@
 
 package com.chocolatey.pmsencoder.command
 
+import com.chocolatey.pmsencoder.*
+
 import groovy.transform.*
 
 @InheritConstructors

@@ -41,7 +41,7 @@ class Response implements LoggerMixin {
     }
 
     public Response(Request request) {
-        this(new Stash([ uri: request.uri ]), request.transcoder)
+        this(new Stash(request.stash), request.transcoder)
         this.request = request
     }
 

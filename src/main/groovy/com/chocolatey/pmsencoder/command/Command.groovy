@@ -2,11 +2,13 @@
 
 package com.chocolatey.pmsencoder.command
 
+import com.chocolatey.pmsencoder.*
+
 import groovy.transform.*
 
 @AutoClone
 class Command {
-    // XXX try to work around Groovy's setter/getter bypassing fail by writing getters/setters by hand:
+    // XXX try to work around Groovy's setter/getter-bypassing fail by writing getters/setters by hand:
     // http://groovy.329449.n5.nabble.com/When-setters-setProperty-do-or-don-t-get-called-tp510182p510182.html
     private String executable
     private List<String> args

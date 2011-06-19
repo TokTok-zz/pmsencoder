@@ -36,6 +36,7 @@ class Plugin implements FinalizeTranscoderArgsListener, FileListener {
     private static final String SCRIPT_POLL = 'pmsencoder.script.poll'
     // 1 second is flaky - it results in overlapping file change events
     private static final int MIN_SCRIPT_POLL_INTERVAL = 2
+    private static final PMS pms = PMS.get()
     private static Matcher matcher
     private static Logger logger
 
@@ -44,11 +45,9 @@ class Plugin implements FinalizeTranscoderArgsListener, FileListener {
     private File scriptDirectory
     private long scriptPollInterval
     private PmsConfiguration configuration
-    private PMS pms
 
     public Plugin() {
         info('initializing PMSEncoder ' + VERSION)
-        pms = PMS.get()
         configuration = PMS.getConfiguration()
 
         // get optional overrides from PMS.conf
@@ -153,7 +152,7 @@ class Plugin implements FinalizeTranscoderArgsListener, FileListener {
          * */
         def extensions = pms.getExtensions()
         extensions.set(0, new WEB())
-        registerPlayer(pmsencoder)
+        pms.registerPlayer(pmsencoder)
     }
 
     @Override
@@ -167,20 +166,28 @@ class Plugin implements FinalizeTranscoderArgsListener, FileListener {
     ) {
         // TODO: verify that MEncoder can handle file:// URIs
         def uri = new File(filename).toURI().toString()
+        def stash = new Stash([ uri: uri, filename: filename ])
         def transcoder = new Transcoder(cmdList)
-        def request = new Request(engine, uri, dlna, media, params, transcoder)
+        def request = new Request(engine, stash, dlna, media, params, transcoder)
         def response = match(request)
         assert response.transcoder
         return response.transcoder.toList(response['uri'])
     }
 
     public static Response match(String engine, String uri, DLNAResource dlna, DLNAMediaInfo media, OutputParams params) {
-        def request = new Request(engine, uri, dlna, media, params)
+        def stash = new Stash([ uri: uri ])
+        match(engine, stash, dlna, media, params)
+    }
+
+    public static Response match(String engine, Stash stash, DLNAResource dlna, DLNAMediaInfo media, OutputParams params) {
+        def request = new Request(engine, stash, dlna, media, params)
         match(request)
     }
 
     static Response match(Request request) {
-        info("invoking matcher for: engine: ${request.engine}, uri: ${request.uri}")
+        def uri = request['uri']
+
+        info("invoking matcher for: engine: ${request.engine}, uri: ${uri}")
 
         def response = matcher.match(request)
         def matches = response.matches
@@ -236,7 +243,7 @@ class Plugin implements FinalizeTranscoderArgsListener, FileListener {
         createMatcher()
     }
 
-    private static void createMatcher() {
+    private void createMatcher() {
         synchronized (this) {
             matcher = new Matcher(pms)
 
@@ -249,16 +256,6 @@ class Plugin implements FinalizeTranscoderArgsListener, FileListener {
             } catch (Exception e) {
                 error('error loading scripts', e)
             }
-        }
-    }
-
-    private void registerPlayer(PMSEncoder pmsencoder) {
-        try {
-            def pmsRegisterPlayer = pms.getClass().getDeclaredMethod('registerPlayer', Player.class)
-            pmsRegisterPlayer.setAccessible(true)
-            pmsRegisterPlayer.invoke(pms, pmsencoder)
-        } catch (Exception e) {
-            error('error calling PMS.registerPlayer', e)
         }
     }
 
