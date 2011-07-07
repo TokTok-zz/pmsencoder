@@ -44,6 +44,7 @@ class Matcher implements LoggerMixin {
         groovy = new GroovyShell(binding)
     }
 
+    // package scoped
     static Transcoder createDefaultTranscoder() {
         return defaultTranscoderClass.newInstance()
     }

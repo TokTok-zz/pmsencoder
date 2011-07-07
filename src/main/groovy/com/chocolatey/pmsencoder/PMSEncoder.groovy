@@ -103,8 +103,8 @@ class PMSEncoder extends MEncoderWebVideo implements LoggerMixin {
             processManager.attachAndStartCommand(response.hook.toList(newURI))
         }
 
-        // FIXME: groovy++ type inference fail: the subscript and/or concatenation operations
-        // on downloaderCmd and transcoderCmd are causing groovy++ to define them as
+        // FIXME: Groovy++ type inference fail: the subscript and/or concatenation operations
+        // on downloaderCmd and transcoderCmd are causing Groovy++ to define them as
         // Collection<String> rather than List<String>
         List<String> downloaderCmd, transcoderCmd
 

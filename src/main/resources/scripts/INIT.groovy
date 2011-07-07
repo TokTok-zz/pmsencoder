@@ -40,8 +40,8 @@ init {
 
         matcher-scoped (i.e. global):
 
-            defaultFfmpegArgs, defaultFfmpegOutputArgs, defaultMencoderArgs,
-            and defaultMplayerArgs are lists of strings, but, as seen below, can be assigned strings
+            Ffmpeg.defaultArgs, Ffmpeg.defaultOutputArgs, MEncoder.defaultArgs,
+            and MPlayer.defaultArgs are lists of strings, but, as seen below, can be assigned strings
             (which are split on whitespace).
 
         profile-scoped:
@@ -106,6 +106,18 @@ init {
 
         For the full list of formats, see: http://en.wikipedia.org/wiki/YouTube#Quality_and_codecs
     */
+
+    if (!Curl.defaultExecutable)
+        Curl.defaultExecutable = pmsConf['CURL']
+
+    if (!Curl.defaultArgs)
+        Curl.defaultArgs = '--output DOWNLOADER_OUT'
+
+    // the URI needs to be the last argument (i.e. it is not position-independent like the MEncoder URI(s) and doesn't
+    // have an e.g. --uri option that allows options to be added after it), so ensure it is
+    // last by placing it in output args
+    if (!Curl.defaultOutputArgs)
+        Curl.defaultOutputArgs = 'URI'
 
     if (!youtubeAccept) {
         youtubeAccept = [

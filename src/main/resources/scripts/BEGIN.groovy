@@ -6,6 +6,7 @@ begin {
         'Version/4.0.4 Mobile/7B334b Safari/531.21.10'
 
     // pull globals from PMS.conf i.e. translate PMS.conf settings into global PMSEncoder values
+    CURL = pmsConf['curl.path'] ?: Platform.getExecutable('curl')
     GET_FLASH_VIDEOS = pmsConf['get-flash-videos.path']
     HLS_PLAYER = pmsConf['hls-player.path']
     NOTIFY_SEND = pmsConf['notify-send.path']
@@ -17,7 +18,7 @@ begin {
     SOPCAST = pmsConf['sopcast.path']
     SOPCAST_URI = pmsConf['sopcast.uri'] ?: 'http://127.0.0.1:8902/stream' // only used if SOPCAST is defined
     VLC = pmsConf['vlc.path']
-    YOUTUBE_DL = pmsConf['youtube-dl.path']
+    YOUTUBE_DL = pmsConf['youtube-dl.path'] ?: Platform.getExecutable('youtube-dl')
     // see https://secure.wikimedia.org/wikipedia/en/wiki/YouTube#Quality_and_codecs
     YOUTUBE_DL_MAX_QUALITY = pmsConf['youtube-dl.max-quality'] ?: 22
 }

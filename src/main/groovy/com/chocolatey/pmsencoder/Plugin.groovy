@@ -195,7 +195,7 @@ class Plugin implements FinalizeTranscoderArgsListener, FileListener {
         if (logger) {
             logger.info(message)
         } else {
-            PMS.minimal("PMSEncoder: $message")
+            PMS.info("PMSEncoder: $message")
         }
     }
 
