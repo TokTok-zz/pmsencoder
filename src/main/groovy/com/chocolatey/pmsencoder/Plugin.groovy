@@ -155,6 +155,10 @@ class Plugin implements FinalizeTranscoderArgsListener, FileListener {
         pms.registerPlayer(pmsencoder)
     }
 
+    public Matcher getMatcher() {
+        return matcher
+    }
+
     @Override
     public List<String> finalizeTranscoderArgs(
         String engine,
@@ -169,39 +173,9 @@ class Plugin implements FinalizeTranscoderArgsListener, FileListener {
         def stash = new Stash([ uri: uri, filename: filename ])
         def transcoder = new Transcoder(cmdList)
         def request = new Request(engine, stash, dlna, media, params, transcoder)
-        def response = match(request)
+        def response = matcher.match(request)
         assert response.transcoder
         return response.transcoder.toList(response['uri'])
-    }
-
-    public static Response match(String engine, String uri, DLNAResource dlna, DLNAMediaInfo media, OutputParams params) {
-        def stash = new Stash([ uri: uri ])
-        match(engine, stash, dlna, media, params)
-    }
-
-    public static Response match(String engine, Stash stash, DLNAResource dlna, DLNAMediaInfo media, OutputParams params) {
-        def request = new Request(engine, stash, dlna, media, params)
-        match(request)
-    }
-
-    public static Response match(Request request) {
-        def uri = request['uri']
-
-        info("invoking matcher for: engine: ${request.engine}, uri: ${uri}")
-
-        def response = matcher.match(request)
-        def matches = response.matches
-        def nMatches = matches.size()
-
-        if (nMatches == 0) {
-            info('0 matches for: ' + uri)
-        } else if (nMatches == 1) {
-            info('1 match (' + matches + ') for: ' + uri)
-        } else {
-            info(nMatches + ' matches (' + matches + ') for: ' + uri)
-        }
-
-        return response
     }
 
     private void loadDefaultLogConfig() {

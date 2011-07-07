@@ -85,7 +85,8 @@ class PMSEncoder extends MEncoderWebVideo implements LoggerMixin {
         def mencoderPath = normalizePath(configuration.getMencoderPath())
         def mencoderMtPath = normalizePath(configuration.getMencoderMTPath())
         def mplayerPath = normalizePath(configuration.getMplayerPath())
-        def response = plugin.match('pmsencoder', oldURI, dlna, media, params)
+        def matcher = plugin.getMatcher()
+        def response = matcher.match('pmsencoder', oldURI, dlna, media, params)
         def mimeType = response['mimeType']
 
         if (mimeType != null) {

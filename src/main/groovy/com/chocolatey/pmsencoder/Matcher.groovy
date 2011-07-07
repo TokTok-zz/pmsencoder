@@ -5,6 +5,9 @@ import com.chocolatey.pmsencoder.command.*
 
 import static groovy.io.FileType.FILES
 
+import net.pms.dlna.DLNAMediaInfo
+import net.pms.dlna.DLNAResource
+import net.pms.io.OutputParams
 import net.pms.PMS
 
 enum Stage { BEGIN, INIT, SCRIPT, CHECK, END }
@@ -49,18 +52,39 @@ class Matcher implements LoggerMixin {
         return this.getClass().getResource("/${name}");
     }
 
-    // production interface (via PMSEncoder -> Plugin)
-    Response match(Request request) {
-        def response = new Response(request)
-        match(response, true)
+    // production interface (via PMSEncoder)
+    public Response match(String engine, String uri, DLNAResource dlna, DLNAMediaInfo media, OutputParams params) {
+        def stash = new Stash([ uri: uri ])
+        def request = new Request(engine, stash, dlna, media, params)
+
+        logger.info("invoking matcher for: engine: ${request.engine}")
+
+        def response = match(request)
+        def matches = response.matches
+        def nMatches = matches.size()
+
+        if (nMatches == 0) {
+            logger.info('0 matches for: ' + uri)
+        } else if (nMatches == 1) {
+            logger.info('1 match (' + matches + ') for: ' + uri)
+        } else {
+            logger.info(nMatches + ' matches (' + matches + ') for: ' + uri)
+        }
+
+        return response
     }
 
-    // test interface (chiefly via PMSEncoderTestCase)
-    // write this out explicitly to avoid issues with default args and delegation
-    Response match(Response response) {
-        match(response, true)
+    // production interface (via finalizeTranscoderArgs in Plugin)
+    public Response match(Request request) {
+        match(new Response(request), true)
     }
 
+    // test interface (via PMSEncoderTestCase).
+    // it's hackish to have a clear separation of Request and Response, and a method - match -
+    // that maps a Request to a Response, only to break the abstraction by passing in a prefabricated
+    // Response (with a null Request), but it simplifies (and is only used directly by) tests, specifically
+    // PMSEncoderTestCase
+    // XXX: avoid using a default true value here to avoid Groovy issues with default args and delegation
     Response match(Response response, boolean useDefault) {
         try {
             if (useDefault) {
@@ -70,9 +94,9 @@ class Matcher implements LoggerMixin {
             assert response.transcoder != null
 
             def uri = response['uri']
-            def engine = response.request.engine
+            def engine = response.request?.engine ?: 'pmsencoder' // request is null in tests
 
-            logger.debug("matching URI: ${uri}")
+            logger.info("matching URI: ${uri}")
 
             // XXX this is horribly inefficient, but it's a) trivial to implement and b) has the right semantics.
             // the small number of scripts make this a non-issue for now
