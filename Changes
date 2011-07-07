@@ -4,6 +4,9 @@
     - look in platform subdirectory for standalone executables (e.g. rtmpdump) if paths aren't defined in PMS.conf
     - DOWNLOADER_OUT, TRANSCODER_OUT and URI are placeholders that are substituted at transcode time
 
+1.5.6 Sun Jun 19 20:15:28 2011
+    - compatibility with forthcoming PMS builds (>= 1.30.0)
+
 1.5.5 Sun Mar 6 17:45:11 2011
     - use MEncoder as a transcoder (instead of MPlayer as a downloader) to work around
       Windows streaming issues
