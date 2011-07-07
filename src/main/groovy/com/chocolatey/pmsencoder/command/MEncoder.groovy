@@ -16,7 +16,6 @@ class MEncoder extends Transcoder {
         this(defaultExecutable, getDefaultArgs(), getDefaultOutputArgs())
     }
 
-    @Override
     MEncoder(List args) {
         this(defaultExecutable, args, getDefaultOutputArgs())
     }

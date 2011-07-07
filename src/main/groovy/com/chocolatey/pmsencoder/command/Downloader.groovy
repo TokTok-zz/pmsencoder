@@ -13,7 +13,7 @@ class Downloader extends Command {
         list.collect { it.replace('URI', uri).replace('DOWNLOADER_OUT', downloaderOut) }
     }
 
-    protected List<String> toList(String uri, String downloaderOut) {
+    public List<String> toList(String uri, String downloaderOut) {
         [ executable ] + expandMacros(args, uri, downloaderOut) + expandMacros(output, uri, downloaderOut)
     }
 }

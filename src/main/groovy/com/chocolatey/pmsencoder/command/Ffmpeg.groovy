@@ -16,7 +16,6 @@ class Ffmpeg extends Transcoder {
         this(defaultExecutable, getDefaultArgs(), getDefaultOutputArgs())
     }
 
-    @Override
     Ffmpeg(List args) {
         this(defaultExecutable, args, getDefaultOutputArgs())
     }

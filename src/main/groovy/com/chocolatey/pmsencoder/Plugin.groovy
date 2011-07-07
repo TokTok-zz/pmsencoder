@@ -184,7 +184,7 @@ class Plugin implements FinalizeTranscoderArgsListener, FileListener {
         match(request)
     }
 
-    static Response match(Request request) {
+    public static Response match(Request request) {
         def uri = request['uri']
 
         info("invoking matcher for: engine: ${request.engine}, uri: ${uri}")
@@ -225,11 +225,11 @@ class Plugin implements FinalizeTranscoderArgsListener, FileListener {
         }
     }
 
-    private static void error(String message, Exception e) {
+    private static void error(String message, Throwable t) {
         if (logger) {
             logger.error(message)
         }
-        PMS.error("PMSEncoder: $message", e)
+        PMS.error("PMSEncoder: $message", t)
     }
 
     private void monitorScriptDirectory() {
@@ -257,10 +257,6 @@ class Plugin implements FinalizeTranscoderArgsListener, FileListener {
                 error('error loading scripts', e)
             }
         }
-    }
-
-    public Response match(Request request) {
-        matcher.match(request)
     }
 
     @Override

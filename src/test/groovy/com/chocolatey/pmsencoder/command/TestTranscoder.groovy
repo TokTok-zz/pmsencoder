@@ -6,7 +6,7 @@ import com.chocolatey.pmsencoder.command.Transcoder
 
 import groovy.transform.*
 
-// @InheritConstructors
+@InheritConstructors
 class TestTranscoder extends Transcoder {
     TestTranscoder() {
         super('transcoder', [], [])

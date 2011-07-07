@@ -12,12 +12,11 @@ class MPlayer extends Downloader {
     private static List<String> defaultArgs = []
 
     MPlayer() {
-        this(defaultExecutable, getDefaultArgs(), [])
+        super(defaultExecutable, getDefaultArgs(), [])
     }
 
-    @Override
     MPlayer(List args) {
-        this(defaultExecutable, args, [])
+        super(defaultExecutable, args, [])
     }
 
     public static List<String> getDefaultArgs() {

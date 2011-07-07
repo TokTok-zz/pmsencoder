@@ -87,7 +87,7 @@ class Command {
         list.collect { it.replace('URI', uri) }
     }
 
-    protected List<String> toList(String uri) {
+    public List<String> toList(String uri) {
         [ executable ] + expandMacros(args, uri) + expandMacros(output, uri)
     }
 }

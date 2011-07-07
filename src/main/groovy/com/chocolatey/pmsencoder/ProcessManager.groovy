@@ -49,7 +49,7 @@ private class ProcessManager implements LoggerMixin {
 
     public String getFifoPath(String basename) {
         try {
-            return pmsencoder.isWindows ?
+            return Platform.isWindows() ?
                 '\\\\.\\pipe\\' + basename :
                 (new File(PMS.getConfiguration().getTempFolder(), basename)).getCanonicalPath()
         } catch (IOException e) {
@@ -78,7 +78,7 @@ private class ProcessManager implements LoggerMixin {
             params = outputParams
         } else {
             // PMS doesn't require input from this process - so use new OutputParams
-            params = new OutputParams(pmsencoder.getConfiguration())
+            params = new OutputParams(PMS.getConfiguration())
             params.log = true
         }
 
@@ -97,7 +97,7 @@ private class ProcessManager implements LoggerMixin {
             params = outputParams
         } else {
             // PMS doesn't require input from this process - so use new OutputParams
-            params = new OutputParams(pmsencoder.getConfiguration())
+            params = new OutputParams(PMS.getConfiguration())
             params.log = true
         }
 
